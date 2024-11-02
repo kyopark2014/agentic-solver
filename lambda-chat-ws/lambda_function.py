@@ -79,7 +79,7 @@ history_length = 0
 token_counter_history = 0
 grade_state = "LLM" # LLM, PRIORITY_SEARCH, OTHERS
  
-minDocSimilarity = 300
+minDocSimilarity = 350
 projectName = os.environ.get('projectName')
 maxOutputTokens = 4096
 data_source_id = ""
