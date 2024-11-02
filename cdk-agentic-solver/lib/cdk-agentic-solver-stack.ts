@@ -183,7 +183,7 @@ export class CdkAgenticSolverStack extends cdk.Stack {
       type: "encryption",
       description: `opensearch encryption policy for ${projectName}`,
       policy:
-        '{"Rules":[{"ResourceType":"collection","Resource":["collection/*"]}],"AWSOwnedKey":true}',      
+        `{"Rules":[{"ResourceType":"collection","Resource":["collection/${collectionName}"]}],"AWSOwnedKey":true}`,      
     });
     OpenSearchCollection.addDependency(encPolicy);
 
