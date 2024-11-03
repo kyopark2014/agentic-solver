@@ -1101,6 +1101,34 @@ def update_state_message(msg:str, config):
         
     isTyping(connectionId, requestId, msg)
 
+def traslation(chat, text, input_language, output_language):
+    system = (
+        "You are a helpful assistant that translates {input_language} to {output_language} in <article> tags. Put it in <result> tags."
+    )
+    human = "<article>{text}</article>"
+    
+    prompt = ChatPromptTemplate.from_messages([("system", system), ("human", human)])
+    # print('prompt: ', prompt)
+    
+    chain = prompt | chat    
+    try: 
+        result = chain.invoke(
+            {
+                "input_language": input_language,
+                "output_language": output_language,
+                "text": text,
+            }
+        )
+        
+        msg = result.content
+        # print('translated text: ', msg)
+    except Exception:
+        err_msg = traceback.format_exc()
+        print('error message: ', err_msg)                    
+        raise Exception ("Not able to request to LLM")
+
+    return msg[msg.find('<result>')+8:len(msg)-9] # remove <result> tag
+
 def priority_search(query, relevant_docs, minSimilarity):
     excerpts = []
     for i, doc in enumerate(relevant_docs):
@@ -1149,6 +1177,46 @@ def priority_search(query, relevant_docs, minSimilarity):
             if score < minSimilarity:
                 docs.append(relevant_docs[order])    
         # print('selected docs: ', docs)
+        
+        # double check using translated query
+        chat = get_chat()
+        if isKorean(query):
+            translated_query = traslation(chat, query, "Korean", "English")
+        else:
+            translated_query = traslation(chat, query, "English", "Korean")         
+        print('translated_query: ', translated_query)
+        
+        rel_documents = vectorstore_confidence.similarity_search_with_score(
+            query=translated_query,
+            k=len(relevant_docs)
+        )
+        
+        for i, document in enumerate(rel_documents):
+            print(f'## Document(priority_search) query: {translated_query}, {i+1}: {document}')
+
+            order = document[0].metadata['order']
+            name = document[0].metadata['name']
+            
+            score = document[1]
+            print(f"query: {translated_query}, {order}: {name}, {score}")
+
+            relevant_docs[order].metadata['score'] = int(score)
+
+            if score < minSimilarity:
+                docs.append(relevant_docs[order])
+        
+        # check duplication of docs
+        contentList = []
+        updated_docs = []
+        print('length of docs:', len(docs))
+        for doc in docs:            
+            if doc.page_content in contentList:
+                print('duplicated!')
+                continue
+            contentList.append(doc.page_content)
+            updated_docs.append(doc)
+        print('length of updated_docs:', len(updated_docs))
+        docs = updated_docs
 
     return docs
     
