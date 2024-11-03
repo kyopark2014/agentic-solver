@@ -64,6 +64,10 @@ Plan에 대한 결과는 아래와 같습니다.
 
 ### Execution Node
 
+"1단계: INFJ는 Myers-Briggs 성격 유형 지표(MBTI)의 16가지 유형 중 하나로, '내향적(I)', '직관적(N)', '감정적(F)', '판단적(J)'의 특성을 가지고 있습니다."에 대한 결과입니다.
+
+아래에서는 search_by_knowledge_base에 대한 결과를 얻습니다.
+
 ```java
 {
    "messages":[
@@ -143,6 +147,7 @@ Plan에 대한 결과는 아래와 같습니다.
 }
 ```
 
+아래는 "1. 사용자가 제공한 정보를 바탕으로 INFJ 성격 유형의 특징을 요약하고 있습니다."에 대한 결과입니다. "search_by_tavily"로 "INFJ personality type"에 대해 조회하였으나 실패하였습니다.
 
 ```java
 {
