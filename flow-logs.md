@@ -68,77 +68,77 @@ Plan에 대한 결과는 아래와 같습니다.
 {
    "messages":[
       "HumanMessage(content=""1단계: INFJ는 Myers-Briggs 성격 유형 지표(MBTI)의 16가지 유형 중 하나로, '내향적(I)', '직관적(N)', '감정적(F)', '판단적(J)'의 특성을 가지고 있습니다.",
-      "additional_kwargs="{
-         
-      },
-      "response_metadata="{
-         
-      },
-      "id=""0ebd21d6-01d9-4999-b6f1-7530784b17a2"")",
+         "additional_kwargs="{
+            
+         },
+         "response_metadata="{
+            
+         },
+         "id=""0ebd21d6-01d9-4999-b6f1-7530784b17a2"")",
       "AIMessage(content=""",
-      "additional_kwargs="{
-         "usage":{
-            "prompt_tokens":755,
-            "completion_tokens":112,
-            "total_tokens":867
-         },
-         "stop_reason":"tool_use",
-         "model_id":"anthropic.claude-3-sonnet-20240229-v1:0"
-      },
-      "response_metadata="{
-         "usage":{
-            "prompt_tokens":755,
-            "completion_tokens":112,
-            "total_tokens":867
-         },
-         "stop_reason":"tool_use",
-         "model_id":"anthropic.claude-3-sonnet-20240229-v1:0"
-      },
-      "id=""run-baecea41-1c95-4d42-82dd-21fa507b0e59-0",
-      "tool_calls="[
-         {
-            "name":"search_by_knowledge_base",
-            "args":{
-               "keyword":"INFJ personality type"
+         "additional_kwargs="{
+            "usage":{
+               "prompt_tokens":755,
+               "completion_tokens":112,
+               "total_tokens":867
             },
-            "id":"toolu_bdrk_01XHqoxkEGpWwvGswZwm6QJs",
-            "type":"tool_call"
-         }
-      ],
-      "usage_metadata="{
-         "input_tokens":755,
-         "output_tokens":112,
-         "total_tokens":867
-      }")",
+            "stop_reason":"tool_use",
+            "model_id":"anthropic.claude-3-sonnet-20240229-v1:0"
+         },
+         "response_metadata="{
+            "usage":{
+               "prompt_tokens":755,
+               "completion_tokens":112,
+               "total_tokens":867
+            },
+            "stop_reason":"tool_use",
+            "model_id":"anthropic.claude-3-sonnet-20240229-v1:0"
+         },
+         "id=""run-baecea41-1c95-4d42-82dd-21fa507b0e59-0",
+         "tool_calls="[
+            {
+               "name":"search_by_knowledge_base",
+               "args":{
+                  "keyword":"INFJ personality type"
+               },
+               "id":"toolu_bdrk_01XHqoxkEGpWwvGswZwm6QJs",
+               "type":"tool_call"
+            }
+         ],
+         "usage_metadata="{
+            "input_tokens":755,
+            "output_tokens":112,
+            "total_tokens":867
+         }")",
       "ToolMessage(content=""",
-      "name=""search_by_knowledge_base",
-      "id=""28482446-1127-4b6c-b8b2-34475fd90132",
-      "tool_call_id=""toolu_bdrk_01XHqoxkEGpWwvGswZwm6QJs"")",
+         "name=""search_by_knowledge_base",
+         "id=""28482446-1127-4b6c-b8b2-34475fd90132",
+         "tool_call_id=""toolu_bdrk_01XHqoxkEGpWwvGswZwm6QJs"")",
       "AIMessage(content=""INFJ는 Myers-Briggs 성격 유형 지표(MBTI)에서 가장 드문 유형 중 하나입니다. 이 유형은 다음과 같은 특징을 가지고 있습니다:\n\n- 내향적(I) - 에너지를 내부에서 얻으며 조용하고 사색적입니다.\n- 직관적(N) - 추상적 사고와 이론, 패턴, 의미에 관심이 많습니다. \n- 감정적(F) - 감정과 가치를 중요하게 여기며 타인의 감정에 민감합니다.\n- 판단적(J) - 체계적이고 계획적이며 결과 지향적입니다.\n\nINFJ 유형은 이상주의적이고 통찰력이 뛰어나며 타인을 잘 이해하고 배려합니다. 그러나 자신의 감정을 잘 드러내지 않고 내면의 세계에 집중하는 경향이 있습니다. 또한 완벽주의 성향이 있어 높은 기준을 갖고 있습니다. 전체적으로 INFJ는 창의적이고 통찰력 있으며 이타적인 성격 유형으로 알려져 있습니다.",
-      "additional_kwargs="{
-         "usage":{
-            "prompt_tokens":842,
-            "completion_tokens":406,
-            "total_tokens":1248
+         "additional_kwargs="{
+            "usage":{
+               "prompt_tokens":842,
+               "completion_tokens":406,
+               "total_tokens":1248
+            },
+            "stop_reason":"end_turn",
+            "model_id":"anthropic.claude-3-sonnet-20240229-v1:0"
          },
-         "stop_reason":"end_turn",
-         "model_id":"anthropic.claude-3-sonnet-20240229-v1:0"
-      },
-      "response_metadata="{
-         "usage":{
-            "prompt_tokens":842,
-            "completion_tokens":406,
-            "total_tokens":1248
+         "response_metadata="{
+            "usage":{
+               "prompt_tokens":842,
+               "completion_tokens":406,
+               "total_tokens":1248
+            },
+            "stop_reason":"end_turn",
+            "model_id":"anthropic.claude-3-sonnet-20240229-v1:0"
          },
-         "stop_reason":"end_turn",
-         "model_id":"anthropic.claude-3-sonnet-20240229-v1:0"
-      },
-      "id=""run-90d3083f-e489-46a6-901c-b65b68ea2591-0",
-      "usage_metadata="{
-         "input_tokens":842,
-         "output_tokens":406,
-         "total_tokens":1248
-      }")"
+         "id=""run-90d3083f-e489-46a6-901c-b65b68ea2591-0",
+         "usage_metadata="{
+            "input_tokens":842,
+            "output_tokens":406,
+            "total_tokens":1248
+         }")"
    ]
 }
 ```
@@ -148,78 +148,78 @@ Plan에 대한 결과는 아래와 같습니다.
 {
    "messages":[
       "HumanMessage(content=""1. 사용자가 제공한 정보를 바탕으로 INFJ 성격 유형의 특징을 요약하고 있습니다.",
-      "additional_kwargs="{
-         
-      },
-      "response_metadata="{
-         
-      },
-      "id=""192f8438-2f1a-4054-ae07-2ce219377ce8"")",
+         "additional_kwargs="{
+            
+         },
+         "response_metadata="{
+            
+         },
+         "id=""192f8438-2f1a-4054-ae07-2ce219377ce8"")",
       "AIMessage(content=""",
-      "additional_kwargs="{
-         "usage":{
-            "prompt_tokens":716,
-            "completion_tokens":100,
-            "total_tokens":816
-         },
-         "stop_reason":"tool_use",
-         "model_id":"anthropic.claude-3-sonnet-20240229-v1:0"
-      },
-      "response_metadata="{
-         "usage":{
-            "prompt_tokens":716,
-            "completion_tokens":100,
-            "total_tokens":816
-         },
-         "stop_reason":"tool_use",
-         "model_id":"anthropic.claude-3-sonnet-20240229-v1:0"
-      },
-      "id=""run-cc071631-ed94-4815-9e16-d9c9a21ba382-0",
-      "tool_calls="[
-         {
-            "name":"search_by_tavily",
-            "args":{
-               "keyword":"INFJ personality type"
+         "additional_kwargs="{
+            "usage":{
+               "prompt_tokens":716,
+               "completion_tokens":100,
+               "total_tokens":816
             },
-            "id":"toolu_bdrk_01BVCUrvruDSyyAFhN2Nqsk1",
-            "type":"tool_call"
-         }
-      ],
-      "usage_metadata="{
-         "input_tokens":716,
-         "output_tokens":100,
-         "total_tokens":816
-      }")",
+            "stop_reason":"tool_use",
+            "model_id":"anthropic.claude-3-sonnet-20240229-v1:0"
+         },
+         "response_metadata="{
+            "usage":{
+               "prompt_tokens":716,
+               "completion_tokens":100,
+               "total_tokens":816
+            },
+            "stop_reason":"tool_use",
+            "model_id":"anthropic.claude-3-sonnet-20240229-v1:0"
+         },
+         "id=""run-cc071631-ed94-4815-9e16-d9c9a21ba382-0",
+         "tool_calls="[
+            {
+               "name":"search_by_tavily",
+               "args":{
+                  "keyword":"INFJ personality type"
+               },
+               "id":"toolu_bdrk_01BVCUrvruDSyyAFhN2Nqsk1",
+               "type":"tool_call"
+            }
+         ],
+         "usage_metadata="{
+            "input_tokens":716,
+            "output_tokens":100,
+            "total_tokens":816
+         }")",
       "ToolMessage(content=""Error: KeyError('location')\n Please fix your mistakes.",
-      "name=""search_by_tavily",
-      "id=""ba9aa299-0242-46b0-9701-a232e03c9e68",
-      "tool_call_id=""toolu_bdrk_01BVCUrvruDSyyAFhN2Nqsk1",
-      "status=""error"")",
+         "name=""search_by_tavily",
+         "id=""ba9aa299-0242-46b0-9701-a232e03c9e68",
+         "tool_call_id=""toolu_bdrk_01BVCUrvruDSyyAFhN2Nqsk1",
+         "status=""error"")",
       "AIMessage(content=""죄송합니다. 제가 INFJ 성격 유형에 대해 잘 모르는 것 같습니다. 하지만 사용자가 제공한 정보를 바탕으로 최선을 다해 요약해 드리겠습니다.\n\nINFJ는 Myers-Briggs 성격 유형 지표 중 하나로, 다음과 같은 특징이 있습니다:\n\n- 내향적(I): 내면 세계에 에너지를 집중하는 성향\n- 직관적(N): 큰 그림을 보고 패턴을 인식하는 능력 \n- 감정적(F): 가치와 대인 관계를 중시함\n- 판단적(J): 체계적이고 계획적인 성향\n\nINFJ 유형은 이상주의적이고 통찰력이 뛰어나며, 타인의 감정을 잘 이해하고 배려할 줄 압니다. 하지만 자신의 감정을 잘 드러내지 않는 경향이 있습니다. 또한 완벽주의 성향이 있어 높은 기준을 갖고 있습니다.\n\n이것이 제가 알고 있는 INFJ 성격 유형의 주요 특징입니다. 더 자세한 정보가 필요하시면 전문 자료를 참고하시는 것이 좋겠습니다.",
-      "additional_kwargs="{
-         "usage":{
-            "prompt_tokens":801,
-            "completion_tokens":438,
-            "total_tokens":1239
+         "additional_kwargs="{
+            "usage":{
+               "prompt_tokens":801,
+               "completion_tokens":438,
+               "total_tokens":1239
+            },
+            "stop_reason":"end_turn",
+            "model_id":"anthropic.claude-3-sonnet-20240229-v1:0"
          },
-         "stop_reason":"end_turn",
-         "model_id":"anthropic.claude-3-sonnet-20240229-v1:0"
-      },
-      "response_metadata="{
-         "usage":{
-            "prompt_tokens":801,
-            "completion_tokens":438,
-            "total_tokens":1239
+         "response_metadata="{
+            "usage":{
+               "prompt_tokens":801,
+               "completion_tokens":438,
+               "total_tokens":1239
+            },
+            "stop_reason":"end_turn",
+            "model_id":"anthropic.claude-3-sonnet-20240229-v1:0"
          },
-         "stop_reason":"end_turn",
-         "model_id":"anthropic.claude-3-sonnet-20240229-v1:0"
-      },
-      "id=""run-06fb18c1-b7ad-4f29-ae5b-d9cd475e8ac0-0",
-      "usage_metadata="{
-         "input_tokens":801,
-         "output_tokens":438,
-         "total_tokens":1239
-      }")"
+         "id=""run-06fb18c1-b7ad-4f29-ae5b-d9cd475e8ac0-0",
+         "usage_metadata="{
+            "input_tokens":801,
+            "output_tokens":438,
+            "total_tokens":1239
+         }")"
    ]
 }
 ```
