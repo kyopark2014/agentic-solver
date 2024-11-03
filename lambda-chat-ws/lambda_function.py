@@ -24,7 +24,7 @@ from langchain_community.embeddings import BedrockEmbeddings
 from multiprocessing import Process, Pipe
 
 from langchain_core.prompts import MessagesPlaceholder, ChatPromptTemplate
-from langchain_core.messages import HumanMessage, SystemMessage
+from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 from langchain_aws import ChatBedrock
 from langchain_core.prompts import PromptTemplate
 
@@ -2107,15 +2107,26 @@ def run_plan_and_exeucute(connectionId, requestId, query):
         #output = result[result.find('<result>')+8:len(result)-9] # remove <result> tag
         
         inputs = [HumanMessage(content=task)]
-        output = tool_app.invoke({"messages": inputs}, config, stream_mode="values")
+        output = tool_app.invoke({"messages": inputs}, config)
         print('executor output: ', output)
+        
+        transaction = []
+        if "messages" in output:
+            result = output["messages"][-1]
+            print('result: ', result)
+            
+            human = output.HumanMessage
+            ai = output.AIMessage
+                        
+            transaction = [HumanMessage(content=human.content), AIMessage(content=ai.content)]
+            print('transaction: ', transaction)
         
         # print('plan: ', state["plan"])
         # print('past_steps: ', task)        
         return {
             "input": state["input"],
             "plan": state["plan"],
-            "info": [output],
+            "info": transaction,
             "past_steps": [task],
         }
 
@@ -2173,13 +2184,12 @@ def run_plan_and_exeucute(connectionId, requestId, query):
             
             if not info['parsed'] == None:
                 result = info['parsed']
-                print('act output: ', result)
+                print('replan result: ', result)
                 break
                     
         if result == None:
             return {"response": "답을 찾지 못하였습니다. 다시 시도해주세요."}
         else:
-            print('replan result: ', result)
             if isinstance(result.action, Response):  # "parsed":"Act(action=Response(response="
                 return {
                     "response": result.action.response,
