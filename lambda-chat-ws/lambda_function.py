@@ -2112,13 +2112,13 @@ def run_plan_and_exeucute(connectionId, requestId, query):
         
         transaction = []
         if "messages" in output:
+            step = output["messages"][0]
+            print('step: ', step)
+            
             result = output["messages"][-1]
             print('result: ', result)
             
-            human = output.HumanMessage
-            ai = output.AIMessage
-                        
-            transaction = [HumanMessage(content=human.content), AIMessage(content=ai.content)]
+            transaction = [HumanMessage(content=step.content), AIMessage(content=result.content)]
             print('transaction: ', transaction)
         
         # print('plan: ', state["plan"])
