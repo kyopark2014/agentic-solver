@@ -1093,13 +1093,13 @@ def get_ps_embedding():
     return bedrock_ps_embedding
 
 def update_state_message(msg:str, config):
-        print(msg)
-        # print('config: ', config)
+    print(msg)
+    # print('config: ', config)
         
-        requestId = config.get("configurable", {}).get("requestId", "")
-        connectionId = config.get("configurable", {}).get("connectionId", "")
+    requestId = config.get("configurable", {}).get("requestId", "")
+    connectionId = config.get("configurable", {}).get("connectionId", "")
         
-        isTyping(connectionId, requestId, msg)
+    isTyping(connectionId, requestId, msg)
 
 def priority_search(query, relevant_docs, minSimilarity):
     excerpts = []
@@ -1113,10 +1113,11 @@ def priority_search(query, relevant_docs, minSimilarity):
             Document(
                 page_content=content,
                 metadata={
-                    'location': doc.metadata['location'],
-                    'score':doc.metadata['score'],
-                    'source_metadata': doc.metadata['source_metadata'],
-                    'order':i                    
+                    'name': doc.metadata['name'],
+                    'url': doc.metadata['url'],
+                    'from': doc.metadata['from'],
+                    'order':i,
+                    'score':0
                 }
             )
         )
@@ -1133,15 +1134,15 @@ def priority_search(query, relevant_docs, minSimilarity):
             query=query,
             k=len(relevant_docs)
         )
-    
+        
         for i, document in enumerate(rel_documents):
             print(f'## Document(priority_search) query: {query}, {i+1}: {document}')
 
             order = document[0].metadata['order']
-            source_metadata = document[0].metadata['source_metadata']
+            name = document[0].metadata['name']
             
             score = document[1]
-            print(f"query: {query}, {order}, {score}, {source_metadata}")
+            print(f"query: {query}, {order}: {name}, {score}")
 
             relevant_docs[order].metadata['score'] = int(score)
 
@@ -1149,51 +1150,6 @@ def priority_search(query, relevant_docs, minSimilarity):
                 docs.append(relevant_docs[order])    
         # print('selected docs: ', docs)
 
-    return docs
-
-def get_reference_from_knoweledge_base(relevent_docs, path, doc_prefix):
-    #print('path: ', path)
-    #print('doc_prefix: ', doc_prefix)
-    #print('prefix: ', f"/{doc_prefix}")
-    
-    docs = []
-    for i, document in enumerate(relevent_docs):
-        content = ""
-        if document.page_content:
-            content = document.page_content
-        
-        score = document.metadata["score"]        
-        print(f"{i}: {content}, score: {score}")
-        
-        link = ""
-        if "s3Location" in document.metadata["location"]:
-            link = document.metadata["location"]["s3Location"]["uri"] if document.metadata["location"]["s3Location"]["uri"] is not None else ""
-            
-            # print('link:', link)    
-            pos = link.find(f"/{doc_prefix}")
-            name = link[pos+len(doc_prefix)+1:]
-            encoded_name = parse.quote(name)
-            # print('name:', name)
-            link = f"{path}{doc_prefix}{encoded_name}"
-            
-        elif "webLocation" in document.metadata["location"]:
-            link = document.metadata["location"]["webLocation"]["url"] if document.metadata["location"]["webLocation"]["url"] is not None else ""
-            name = "WEB"
-
-        url = link
-        # print('url:', url)
-        
-        docs.append(
-            Document(
-                page_content=content,
-                metadata={
-                    'name': name,
-                    'url': url,
-                    'from': 'RAG'
-                },
-            )
-        )
-                    
     return docs
     
 # get auth
@@ -1579,11 +1535,51 @@ def print_doc(i, doc):
         text = doc.page_content
             
     print(f"{i}: {text}, metadata:{doc.metadata}")
+
+def get_docs_from_knowledge_base(documents):        
+    relevant_docs = []
+    for doc in documents:
+        content = ""
+        if doc.page_content:
+            content = doc.page_content
+        
+        score = doc.metadata["score"]
+        
+        link = ""
+        if "s3Location" in doc.metadata["location"]:
+            link = doc.metadata["location"]["s3Location"]["uri"] if doc.metadata["location"]["s3Location"]["uri"] is not None else ""
+            
+            # print('link:', link)    
+            pos = link.find(f"/{doc_prefix}")
+            name = link[pos+len(doc_prefix)+1:]
+            encoded_name = parse.quote(name)
+            # print('name:', name)
+            link = f"{path}{doc_prefix}{encoded_name}"
+            
+        elif "webLocation" in doc.metadata["location"]:
+            link = doc.metadata["location"]["webLocation"]["url"] if doc.metadata["location"]["webLocation"]["url"] is not None else ""
+            name = "WEB"
+
+        url = link
+        # print('url:', url)
+        
+        relevant_docs.append(
+            Document(
+                page_content=content,
+                metadata={
+                    'name': name,
+                    'score': score,
+                    'url': url,
+                    'from': 'RAG'
+                },
+            )
+        )    
+    return relevant_docs
                 
 def get_answer_using_knowledge_base(chat, text, connectionId, requestId):    
     global reference_docs
     
-    msg = reference = ""
+    msg = ""
     top_k = numberOfDocs
     relevant_docs = []
     if knowledge_base_id:    
@@ -1597,24 +1593,20 @@ def get_answer_using_knowledge_base(chat, text, connectionId, requestId):
             }},
         )
         
-        relevant_docs = retriever.invoke(text)
+        docs = retriever.invoke(text)
         # print('relevant_docs: ', relevant_docs)
         print('--> relevant_docs for knowledge base')
-        for i, doc in enumerate(relevant_docs):
+        for i, doc in enumerate(docs):
             print_doc(i, doc)
-        
-        #selected_relevant_docs = []
-        #if len(relevant_docs)>=1:
-        #    print('start priority search')
-        #    selected_relevant_docs = priority_search(revised_question, relevant_docs, minDocSimilarity)
-        #    print('selected_relevant_docs: ', json.dumps(selected_relevant_docs))
-
+            
+        relevant_docs = get_docs_from_knowledge_base(docs)
+    
+    # grading        
     isTyping(connectionId, requestId, "grading...")
     
     filtered_docs = grade_documents(text, relevant_docs)
     
-    # duplication checker
-    filtered_docs = check_duplication(filtered_docs)
+    filtered_docs = check_duplication(filtered_docs) # duplication checker
             
     relevant_context = ""
     for i, document in enumerate(filtered_docs):
@@ -1629,7 +1621,7 @@ def get_answer_using_knowledge_base(chat, text, connectionId, requestId):
     msg = query_using_RAG_context(connectionId, requestId, chat, relevant_context, text)
     
     if len(filtered_docs):
-        reference_docs += get_reference_from_knoweledge_base(filtered_docs, path, doc_prefix)  
+        reference_docs += filtered_docs
             
     return msg
     
@@ -1814,6 +1806,7 @@ def search_by_tavily(keyword: str) -> str:
                         },
                     )
                 )   
+            
         except Exception as e:
             print('Exception: ', e)
         
@@ -1863,22 +1856,18 @@ def search_by_knowledge_base(keyword: str) -> str:
             }},
         )
         
-        relevant_docs = retriever.invoke(keyword)
-        # print('relevant_docs: ', relevant_docs)
+        docs = retriever.invoke(keyword)
+        # print('docs: ', docs)
         print('--> relevant_docs from knowledge base')
-        for i, doc in enumerate(relevant_docs):
+        for i, doc in enumerate(docs):
             print_doc(i, doc)
         
-        #selected_relevant_docs = []
-        #if len(relevant_docs)>=1:
-        #    print('start priority search')
-        #    selected_relevant_docs = priority_search(revised_question, relevant_docs, minDocSimilarity)
-        #    print('selected_relevant_docs: ', json.dumps(selected_relevant_docs))
+        relevant_docs = get_docs_from_knowledge_base(docs)
 
+    # grading
     filtered_docs = grade_documents(keyword, relevant_docs)
     
-    # duplication checker
-    filtered_docs = check_duplication(filtered_docs)
+    filtered_docs = check_duplication(filtered_docs) # duplication checker
             
     relevant_context = ""
     for i, document in enumerate(filtered_docs):
@@ -1890,7 +1879,7 @@ def search_by_knowledge_base(keyword: str) -> str:
     print('relevant_context: ', relevant_context)
     
     if len(filtered_docs):
-        reference_docs += get_reference_from_knoweledge_base(filtered_docs, path, doc_prefix)
+        reference_docs += filtered_docs
         
     # print('reference_docs: ', reference_docs)
         
@@ -2085,29 +2074,7 @@ def run_plan_and_exeucute(connectionId, requestId, query):
         
         task = plan[0]
         print('task: ', task)
-        
-        #task_formatted = f"""For the following plan:{plan_str}\n\nYou are tasked with executing step {1}, {task}."""
-        #print("request: ", task_formatted)     
-        #request = HumanMessage(content=task_formatted)
-        
-        #chat = get_chat()
-        #prompt = ChatPromptTemplate.from_messages([
-        #    (
-        #        "system", (
-        #            "질문에 대해 정확한 답변을 수행하는 AI 도우미입니다."
-        #            "상황에 맞는 구체적인 세부 정보를 충분히 제공합니다."
-        #            "모르는 질문을 받으면 솔직히 모른다고 말합니다."
-        #            "결과는 <result> tag를 붙여주세요."
-        #        )
-        #    ),
-        #    MessagesPlaceholder(variable_name="messages"),
-        #])
-        #chain = prompt | chat
-        
-        #response = chain.invoke({"messages": [request]})
-        #result = response.content
-        #output = result[result.find('<result>')+8:len(result)-9] # remove <result> tag
-        
+                
         inputs = [HumanMessage(content=task)]
         output = tool_app.invoke({"messages": inputs}, config)
         print('executor output: ', output)
@@ -2116,15 +2083,13 @@ def run_plan_and_exeucute(connectionId, requestId, query):
         if "messages" in output:
             human = output["messages"][0]
             print('human: ', human.content)
-            
+
             ai = output["messages"][-1]
             print('ai: ', ai.content)
             
             transaction = [HumanMessage(content=human.content), AIMessage(content=ai.content)]
             # print('transaction: ', transaction)
-        
-        # print('plan: ', state["plan"])
-        # print('past_steps: ', task)        
+           
         return {
             "input": state["input"],
             "plan": state["plan"],
