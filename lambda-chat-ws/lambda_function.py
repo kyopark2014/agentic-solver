@@ -1778,6 +1778,8 @@ def search_by_tavily(keyword: str) -> str:
     
     global reference_docs, selected_tavily
     
+    print('tavily keyword: ', keyword)
+    
     docs = []
     if selected_tavily != -1:
         selected_tavily = selected_tavily + 1
@@ -1787,7 +1789,7 @@ def search_by_tavily(keyword: str) -> str:
         try:
             tavily_client = TavilyClient(api_key=tavily_api_key[selected_tavily])
             response = tavily_client.search(keyword, max_results=3)
-            # print('tavily response: ', response)
+            print('tavily response: ', response)
             
             print(f"--> tavily search result: {keyword}")
             for i, r in enumerate(response["results"]):
@@ -2112,14 +2114,14 @@ def run_plan_and_exeucute(connectionId, requestId, query):
         
         transaction = []
         if "messages" in output:
-            step = output["messages"][0]
-            print('step: ', step)
+            human = output["messages"][0]
+            print('human: ', human.content)
             
-            result = output["messages"][-1]
-            print('result: ', result)
+            ai = output["messages"][-1]
+            print('ai: ', ai.content)
             
-            transaction = [HumanMessage(content=step.content), AIMessage(content=result.content)]
-            print('transaction: ', transaction)
+            transaction = [HumanMessage(content=human.content), AIMessage(content=ai.content)]
+            # print('transaction: ', transaction)
         
         # print('plan: ', state["plan"])
         # print('past_steps: ', task)        
