@@ -2591,8 +2591,13 @@ def getResponse(connectionId, jsonBody):
                     print('revised_question: ', revised_question)  
                     msg = run_agent_executor(connectionId, requestId, revised_question)
                 
-                elif conv_type == 'agent-plan-and-execute':  # self-corrective RAG
+                elif conv_type == 'agent-plan-and-execute':  
                     msg = run_plan_and_exeucute(connectionId, requestId, text)        
+                
+                elif conv_type == 'agent-plan-and-execute-chat':
+                    revised_question = revise_question(connectionId, requestId, chat, text)     
+                    print('revised_question: ', revised_question)  
+                    msg = run_plan_and_exeucute(connectionId, requestId, revised_question)        
                     
                 elif conv_type == "translation":
                     msg = translate_text(chat, text) 
