@@ -2129,8 +2129,13 @@ def run_plan_and_exeucute(connectionId, requestId, query):
             description="Action to perform. If you want to respond to user, use Response. "
             "If you need to further use tools to get the answer, use Plan."
         )
+
+    def replan_node(state: State, config):
+        print('#### replan ####')
+        print('state of replan node: ', state)
         
-    def get_replanner():
+        update_state_message("replanning...", config)
+        
         replanner_prompt = ChatPromptTemplate.from_template(
             "For the given objective, come up with a simple step by step plan."
             "This plan should involve individual tasks, that if executed correctly will yield the correct answer."
@@ -2156,14 +2161,6 @@ def run_plan_and_exeucute(connectionId, requestId, query):
         chat = get_chat()
         replanner = replanner_prompt | chat
         
-        return replanner
-
-    def replan_node(state: State, config):
-        print('#### replan ####')
-        
-        update_state_message("replanning...", config)
-        
-        replanner = get_replanner()
         output = replanner.invoke(state)
         print('replanner output: ', output.content)
         
@@ -2180,15 +2177,15 @@ def run_plan_and_exeucute(connectionId, requestId, query):
                 break
                     
         if result == None:
-            return {"response": "답을 찾지 못하였습니다. 다시 해주세요."}
+            return {"response": "답을 찾지 못하였습니다. 다시 시도해주세요."}
         else:
             print('replan result: ', result)
-            if isinstance(result.action, Response):
+            if isinstance(result.action, Response):  # "parsed":"Act(action=Response(response="
                 return {
                     "response": result.action.response,
                     "info": [result.action.response]
                 }
-            else:
+            else:  # "parsed":"Act(action=Plan(steps=
                 return {"plan": result.action.steps}
         
     def should_end(state: State) -> Literal["continue", "end"]:
