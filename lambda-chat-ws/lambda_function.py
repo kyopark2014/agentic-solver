@@ -352,8 +352,8 @@ def get_chat():
     else:
         profile = LLM_for_chat[selected_chat]
     
-    print('length_of_models: ', length_of_models)
-    print('profile: ', json.dumps(profile))
+    #print('length_of_models: ', length_of_models)
+    #print('profile: ', json.dumps(profile))
         
     bedrock_region =  profile['bedrock_region']
     modelId = profile['model_id']
@@ -2107,7 +2107,7 @@ def run_plan_and_exeucute(connectionId, requestId, query):
         #output = result[result.find('<result>')+8:len(result)-9] # remove <result> tag
         
         inputs = [HumanMessage(content=task)]
-        output = tool_app.invoie({"messages": inputs}, config, stream_mode="values")
+        output = tool_app.invoke({"messages": inputs}, config, stream_mode="values")
         print('executor output: ', output)
         
         # print('plan: ', state["plan"])
@@ -2501,7 +2501,7 @@ def getResponse(connectionId, jsonBody):
             selected_chat = 0    
         profile = LLM_for_chat[selected_chat]
         
-    print('length_of_models: ', length_of_models)    
+    # print('length_of_models: ', length_of_models)    
     bedrock_region =  profile['bedrock_region']
     modelId = profile['model_id']
     print(f'selected_chat: {selected_chat}, bedrock_region: {bedrock_region}, modelId: {modelId}')
