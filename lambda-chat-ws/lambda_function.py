@@ -1894,34 +1894,18 @@ def search_by_knowledge_base(keyword: str) -> str:
         
     return relevant_context
 
-def run_agent_executor(connectionId, requestId, query):
-    chatModel = get_chat() 
-    tools = [get_current_time, get_book_list, get_weather_info, search_by_tavily, search_by_knowledge_base]
-    
-    model = chatModel.bind_tools(tools)
-
-    class State(TypedDict):
+####################### LangGraph #######################
+# Tool use
+#########################################################
+def buildToolAgent():
+    class ToolState(TypedDict):
         # messages: Annotated[Sequence[BaseMessage], operator.add]
         messages: Annotated[list, add_messages]
 
+    tools = [get_current_time, get_book_list, get_weather_info, search_by_tavily, search_by_knowledge_base]    
     tool_node = ToolNode(tools)
-        
-    def should_continue(state: State) -> Literal["continue", "end"]:
-        print("###### should_continue ######")
-        messages = state["messages"]    
-        # print('(should_continue) messages: ', messages)
-        
-        last_message = messages[-1]
-                
-        if not last_message.tool_calls:
-            next = "end"
-        else:           
-            next = "continue"     
-        
-        print(f"should_continue response: {next}")
-        return next
 
-    def call_model(state: State, config):
+    def call_model(state: ToolState, config):
         print("###### call_model ######")
         # print('state: ', state["messages"])
         
@@ -1946,6 +1930,10 @@ def run_agent_executor(connectionId, requestId, query):
                 MessagesPlaceholder(variable_name="messages"),
             ]
         )
+        
+        chat = get_chat()             
+        model = chat.bind_tools(tools)
+
         chain = prompt | model
             
         response = chain.invoke(state["messages"])
@@ -1959,28 +1947,40 @@ def run_agent_executor(connectionId, requestId, query):
                 update_state_message(f"calling... {toolinfo['name']}", config)
         
         return {"messages": [response]}
-
-    def buildChatAgent():
-        workflow = StateGraph(State)
-
-        workflow.add_node("agent", call_model)
-        workflow.add_node("action", tool_node)
-        workflow.add_edge(START, "agent")
-        workflow.add_conditional_edges(
-            "agent",
-            should_continue,
-            {
-                "continue": "action",
-                "end": END,
-            },
-        )
-        workflow.add_edge("action", "agent")
-
-        return workflow.compile()
-
-    app = buildChatAgent()
+    
+    def should_continue(state: ToolState) -> Literal["continue", "end"]:
+        print("###### should_continue ######")
+        messages = state["messages"]    
+        # print('(should_continue) messages: ', messages)
+            
+        last_message = messages[-1]                
+        if not last_message.tool_calls:
+            next = "end"
+        else:           
+            next = "continue"             
+        print(f"should_continue response: {next}")
         
-    isTyping(connectionId, requestId, "")
+        return next
+
+    # build workflow
+    workflow = StateGraph(ToolState)
+    workflow.add_node("agent", call_model)
+    workflow.add_node("action", tool_node)
+    workflow.add_edge(START, "agent")
+    workflow.add_conditional_edges(
+        "agent",
+        should_continue,
+        {
+            "continue": "action",
+            "end": END,
+        },
+    )
+    workflow.add_edge("action", "agent")
+
+    return workflow.compile()
+    
+def run_agent_executor(connectionId, requestId, query):        
+    isTyping(connectionId, requestId, "thinking...")
     
     inputs = [HumanMessage(content=query)]
     config = {
@@ -1990,9 +1990,9 @@ def run_agent_executor(connectionId, requestId, query):
     }
     
     message = ""
+    app = buildToolAgent()
     for event in app.stream({"messages": inputs}, config, stream_mode="values"):   
-        # print('event: ', event)
-        
+        # print('event: ', event)        
         message = event["messages"][-1]
         # print('message: ', message)
 
@@ -2081,7 +2081,7 @@ def run_plan_and_exeucute(connectionId, requestId, query):
         
         task = plan[0]
         task_formatted = f"""For the following plan:{plan_str}\n\nYou are tasked with executing step {1}, {task}."""
-        # print("request: ", task_formatted)     
+        print("request: ", task_formatted)     
         request = HumanMessage(content=task_formatted)
         
         chat = get_chat()
