@@ -1978,7 +1978,9 @@ def buildToolAgent():
     workflow.add_edge("action", "agent")
 
     return workflow.compile()
-    
+
+tool_app = buildToolAgent()    
+
 def run_agent_executor(connectionId, requestId, query):        
     isTyping(connectionId, requestId, "thinking...")
     
@@ -1990,8 +1992,8 @@ def run_agent_executor(connectionId, requestId, query):
     }
     
     message = ""
-    app = buildToolAgent()
-    for event in app.stream({"messages": inputs}, config, stream_mode="values"):   
+    
+    for event in tool_app.stream({"messages": inputs}, config, stream_mode="values"):   
         # print('event: ', event)        
         message = event["messages"][-1]
         # print('message: ', message)
@@ -2077,32 +2079,35 @@ def run_plan_and_exeucute(connectionId, requestId, query):
         update_state_message("executing...", config)
         
         plan_str = "\n".join(f"{i+1}. {step}" for i, step in enumerate(plan))
-        #print("plan_str: ", plan_str)
+        print("plan_str: ", plan_str)
         
         task = plan[0]
-        task_formatted = f"""For the following plan:{plan_str}\n\nYou are tasked with executing step {1}, {task}."""
-        print("request: ", task_formatted)     
-        request = HumanMessage(content=task_formatted)
-        
-        chat = get_chat()
-        prompt = ChatPromptTemplate.from_messages([
-            (
-                "system", (
-                    "당신의 이름은 서연이고, 질문에 친근한 방식으로 대답하도록 설계된 대화형 AI입니다."
-                    "상황에 맞는 구체적인 세부 정보를 충분히 제공합니다."
-                    "모르는 질문을 받으면 솔직히 모른다고 말합니다."
-                    "결과는 <result> tag를 붙여주세요."
-                )
-            ),
-            MessagesPlaceholder(variable_name="messages"),
-        ])
-        chain = prompt | chat
-        
-        response = chain.invoke({"messages": [request]})
-        result = response.content
-        output = result[result.find('<result>')+8:len(result)-9] # remove <result> tag
-        
         print('task: ', task)
+        
+        #task_formatted = f"""For the following plan:{plan_str}\n\nYou are tasked with executing step {1}, {task}."""
+        #print("request: ", task_formatted)     
+        #request = HumanMessage(content=task_formatted)
+        
+        #chat = get_chat()
+        #prompt = ChatPromptTemplate.from_messages([
+        #    (
+        #        "system", (
+        #            "질문에 대해 정확한 답변을 수행하는 AI 도우미입니다."
+        #            "상황에 맞는 구체적인 세부 정보를 충분히 제공합니다."
+        #            "모르는 질문을 받으면 솔직히 모른다고 말합니다."
+        #            "결과는 <result> tag를 붙여주세요."
+        #        )
+        #    ),
+        #    MessagesPlaceholder(variable_name="messages"),
+        #])
+        #chain = prompt | chat
+        
+        #response = chain.invoke({"messages": [request]})
+        #result = response.content
+        #output = result[result.find('<result>')+8:len(result)-9] # remove <result> tag
+        
+        inputs = [HumanMessage(content=task)]
+        output = tool_app.invoie({"messages": inputs}, config, stream_mode="values")
         print('executor output: ', output)
         
         # print('plan: ', state["plan"])
@@ -2177,6 +2182,7 @@ def run_plan_and_exeucute(connectionId, requestId, query):
         if result == None:
             return {"response": "답을 찾지 못하였습니다. 다시 해주세요."}
         else:
+            print('replan result: ', result)
             if isinstance(result.action, Response):
                 return {
                     "response": result.action.response,
