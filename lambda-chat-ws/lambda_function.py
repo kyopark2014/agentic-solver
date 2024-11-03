@@ -1893,7 +1893,8 @@ def buildToolAgent():
         # messages: Annotated[Sequence[BaseMessage], operator.add]
         messages: Annotated[list, add_messages]
 
-    tools = [get_current_time, get_book_list, get_weather_info, search_by_tavily, search_by_knowledge_base]    
+    # tools = [get_current_time, get_book_list, get_weather_info, search_by_tavily, search_by_knowledge_base]    
+    tools = [get_current_time, get_book_list, get_weather_info, search_by_tavily]    
     tool_node = ToolNode(tools)
 
     def call_model(state: ToolState, config):
