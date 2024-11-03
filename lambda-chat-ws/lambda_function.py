@@ -1830,7 +1830,7 @@ def get_weather_info(city: str) -> str:
 @tool
 def search_by_tavily(keyword: str) -> str:
     """
-    Search general information by keyword and then return the result as a string.
+    Search any information by keyword and then return the result as a string.
     keyword: search keyword which is greater than the minimum of 4 characters
     return: the information of keyword
     """    
