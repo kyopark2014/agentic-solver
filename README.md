@@ -7,9 +7,6 @@ Replan node는 아래와 같이 state를 가지고 새로운 plan을 생성합�
 
 ```python
 def replan_node(state: State, config):
-    print('#### replan ####')
-    print('state of replan node: ', state)
-    
     update_state_message("replanning...", config)
     
     replanner_prompt = ChatPromptTemplate.from_template(
@@ -38,7 +35,6 @@ def replan_node(state: State, config):
     replanner = replanner_prompt | chat
     
     output = replanner.invoke(state)
-    print('replanner output: ', output.content)
     
     result = None
     for attempt in range(5):
@@ -49,13 +45,11 @@ def replan_node(state: State, config):
         
         if not info['parsed'] == None:
             result = info['parsed']
-            print('act output: ', result)
             break
                 
     if result == None:
         return {"response": "답을 찾지 못하였습니다. 다시 시도해주세요."}
     else:
-        print('replan result: ', result)
         if isinstance(result.action, Response):  # "parsed":"Act(action=Response(response="
             return {
                 "response": result.action.response,
