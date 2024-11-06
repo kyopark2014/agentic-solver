@@ -54,6 +54,14 @@ const claude3_sonnet = [
   }
 ];
 
+const claude3_5_haiku = [
+  {
+    "bedrock_region": "us-west-2", // Oregon
+    "model_type": "claude3.5",
+    "model_id": "us.anthropic.claude-3-5-haiku-20241022-v1:0"
+  }
+];  
+
 const claude3_haiku = [
   {
     "bedrock_region": "us-west-2", // Oregon
@@ -78,7 +86,7 @@ const titan_embedding_v2 = [  // dimension = 1024
   }
 ];
 
-const LLM_for_chat = claude3_sonnet;
+const LLM_for_chat = claude3_5_haiku;  // claude3_5_sonnet
 const LLM_for_multimodal = claude3_sonnet;
 const LLM_embedding = titan_embedding_v2;
 const vectorIndexName = projectName
