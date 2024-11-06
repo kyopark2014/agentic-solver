@@ -2,6 +2,12 @@
 
 여기에서는 agentic workflow를 이용하여 복잡한 문제를 해결하는 방법에 대해 설명합니다. 여기에서 사용하는 agentic workflow은 plan and exeuction입니다.
 
+## Plan and Exeuction pattern
+
+plan and exeuction pattern을 이용하면 복잡한 문제를 step by step으로 처리할 수 있습니다.
+
+![image](https://github.com/user-attachments/assets/301dae63-30aa-4ebc-b434-fb942fa54e85)
+
 
 ### Replan
 
