@@ -1,6 +1,6 @@
 # Agentic Workflow를 이용하여 복잡한 문제 해결하기
 
-여기에서는 agentic workflow를 이용하여 복잡한 문제를 해결하는 방법에 대해 설명합니다.
+여기에서는 agentic workflow를 이용하여 복잡한 문제를 해결하는 방법에 대해 설명합니다. 여기에서 사용하는 agentic workflow은 plan and exeuction입니다.
 
 
 ### Replan
