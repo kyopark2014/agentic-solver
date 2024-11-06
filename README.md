@@ -60,3 +60,14 @@ def replan_node(state: State, config):
 ```
 
 이때, [flow-logs.md](https://github.com/kyopark2014/agentic-solver/blob/main/flow-logs.md)와 같이 replan의 결과로 Response 또는 Plan을 받게 됩니다.
+
+
+## 실행 결과
+
+"서울에서 부산을 거쳐서 제주로 가는 가장 저렴한 방법은?"의 질문에 대한 답변은 아래와 같습니다. 
+
+![noname](https://github.com/user-attachments/assets/dd49ee70-f086-4bf5-b9aa-dfb52ba3807f)
+
+이때의 동작을 LangSmith로 확인합니다.
+
+![image](https://github.com/user-attachments/assets/003efb54-d02a-414c-837a-207491cf4007)
