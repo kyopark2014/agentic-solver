@@ -79,3 +79,30 @@ def replan_node(state: State, config):
 이때의 동작을 LangSmith로 확인합니다.
 
 ![image](https://github.com/user-attachments/assets/003efb54-d02a-414c-837a-207491cf4007)
+
+
+#### 2023년 한국사 문제
+
+[한국사 영역의 시험문제](https://legendstudy.com/1574)입니다.
+
+```text
+11. 다음 A, B 대화의 배경으로 가장 적절한 것은? 
+
+A: 이보게,  종로에서 거의 날마다 보안회가 주관하는 대중 집회가 열리고 있다고 하네. 수천 명이 모여 한 뺌의 국토도 외국인에게 내줄 수 없다는 주장을 펼친다는 군
+B. 지방에서는 이러한 주장에 호응하여 이곳 조곳에서 보안회에 의연금을 보낸다고합니다. 서울의 상인들도 가게 문을 닫고 이들의 투쟁을 지원한다더군요.
+
+① 산미 증식 계획이 시행되었다. 
+② 암태도 소작 쟁의가 발생하였다. 
+③ 일본이 한국에 황무지 개간권을 요구하였다. 
+④ 조선 총독부가 토지 조사 사업을 실시하였다. 
+⑤ 회사 설립을 허가제로 하는 회사령이 제정되었다.
+```
+
+Agent의 경우에 인터넷 검색을 통해 아래와 같이 5번을 답했으나, 정답은 3번입니다.
+
+![noname](https://github.com/user-attachments/assets/4d77bc30-ff66-4b25-b9b2-d6a6da2c42cd)
+
+이때, plan and execute 패턴을 따르는 agentic solver는 아래와 같이 3번 정답을 찾을 수 있었습니다.
+
+![noname](https://github.com/user-attachments/assets/3d05c25a-7d44-42a1-be7f-0f2fb78683a2)
+
