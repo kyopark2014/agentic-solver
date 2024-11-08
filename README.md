@@ -106,3 +106,26 @@ Agent의 경우에 인터넷 검색을 통해 아래와 같이 5번을 답했으
 
 ![noname](https://github.com/user-attachments/assets/3d05c25a-7d44-42a1-be7f-0f2fb78683a2)
 
+LangSmith를 보면 아래와 같이 1회 replan후 결과를 얻었습니다. 
+
+![image](https://github.com/user-attachments/assets/1ff7e107-ae54-48c3-9401-a6f2b6fb1e71)
+
+```java
+{
+  "steps": [
+    "대화의 핵심 내용 파악",
+    "대화의 배경이 될 수 있는 역사적 사건 검토",
+    "제시된 선택지 분석",
+    "역사적 배경 확인",
+    "최종 답안 선택"
+  ]
+}
+```
+
+```java
+1. 대화의 배경이 될 수 있는 역사적 사건 검토
+2. 제시된 선택지 분석
+3. 역사적 배경 확인
+4. 최종 답안 선택
+```
+
