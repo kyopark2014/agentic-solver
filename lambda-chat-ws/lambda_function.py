@@ -2757,7 +2757,20 @@ def getResponse(connectionId, jsonBody):
                 
                 memory_chain.chat_memory.add_user_message(f"{object}에서 텍스트를 추출하세요.")
                 memory_chain.chat_memory.add_ai_message(extracted_text)
-                                                
+            
+            elif file_type == 'json':
+                s3r = boto3.resource("s3")
+                doc = s3r.Object(s3_bucket, s3_prefix+'/'+object)
+
+                json_body = doc.get()['Body'].read().decode('utf-8')   
+
+                contexts = []
+                for doc in docs:
+                    contexts.append(json_body)
+                print('contexts: ', contexts)
+
+                msg = get_summary(chat, contexts)
+                
             else:
                 msg = "uploaded file: "+object
                 
