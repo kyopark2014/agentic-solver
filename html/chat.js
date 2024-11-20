@@ -619,6 +619,9 @@ attachFile.addEventListener('click', function(){
             else if(ext == 'jpeg' || ext == 'jpg') {
                 contentType = 'image/jpeg'
             }
+            else if(ext == 'json') {
+                contentType = 'application/json'
+            }
             console.log('contentType: ', contentType)
 
             let current = new Date();
