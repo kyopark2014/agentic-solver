@@ -2770,10 +2770,11 @@ def getResponse(connectionId, jsonBody):
                     print(f'index: {i}: {json.dumps(body)}')
                     
                 idx = 0
-                paragraph = json_data["paragraph"]
+                question_group = json_data[idx]
+                paragraph = question_group["paragraph"]
                 print('paragraph: ', paragraph)
                 
-                problems = json_data["problems"]
+                problems = question_group["problems"]
                 print('problems: ', json.dumps(problems))
                 
                 for i, problem in enumerate(problems):
