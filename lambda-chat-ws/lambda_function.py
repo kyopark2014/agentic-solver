@@ -2763,11 +2763,21 @@ def getResponse(connectionId, jsonBody):
                 doc = s3r.Object(s3_bucket, s3_prefix+'/'+object)
 
                 contents = doc.get()['Body'].read().decode('utf-8')   
-                print('contents: ', contents)
+                # print('contents: ', contents)
                 
                 json_data = json.loads(contents)
                 for i, body in enumerate(json_data):
                     print(f'index: {i}: {json.dumps(body)}')
+                    
+                idx = 0
+                paragraph = json_data["paragraph"]
+                print('paragraph: ', paragraph)
+                
+                problems = json_data["problems"]
+                print('problems: ', json.dumps(problems))
+                
+                for i, problem in enumerate(problems):
+                    print(f'{i}: {problem}')
                     
                 # print('contents: ', contents)
                 new_contents = str(contents).replace("\n"," ") 
