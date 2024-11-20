@@ -2847,6 +2847,7 @@ def getResponse(connectionId, jsonBody):
             'body': {'S':body},
             'msg': {'S':msg+reference}
         }
+        print('item: ', item)
         client = boto3.client('dynamodb')
         try:
             resp =  client.put_item(TableName=callLogTableName, Item=item)
