@@ -2765,6 +2765,10 @@ def getResponse(connectionId, jsonBody):
                 contents = doc.get()['Body'].read().decode('utf-8')   
                 print('contents: ', contents)
                 
+                json_data = json.loads(contents)
+                for i, body in enumerate(json_data):
+                    print(f'index: {i}: {json.dumps(body)}')
+                    
                 # print('contents: ', contents)
                 new_contents = str(contents).replace("\n"," ") 
                 print('length: ', len(new_contents))
@@ -2790,13 +2794,13 @@ def getResponse(connectionId, jsonBody):
                             }
                         )
                     )
-                print('docs[0]: ', docs[0])    
-                print('docs size: ', len(docs))
+                #print('docs[0]: ', docs[0])    
+                #print('docs size: ', len(docs))
                 
                 contexts = []
                 for doc in docs:
                     contexts.append(doc.page_content)
-                print('contexts: ', contexts)
+                #print('contexts: ', contexts)
 
                 msg = get_summary(chat, contexts)
                 
