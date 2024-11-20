@@ -2766,8 +2766,8 @@ def getResponse(connectionId, jsonBody):
                 # print('contents: ', contents)
                 
                 json_data = json.loads(contents)
-                for i, body in enumerate(json_data):
-                    print(f'index: {i}: {json.dumps(body)}')
+                for i, data in enumerate(json_data):
+                    print(f'index: {i}: {json.dumps(data)}')
                     
                 idx = 0
                 question_group = json_data[idx]
