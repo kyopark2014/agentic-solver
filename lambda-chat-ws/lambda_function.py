@@ -2805,15 +2805,17 @@ def getResponse(connectionId, jsonBody):
                             }
                         )
                     )
-                #print('docs[0]: ', docs[0])    
-                #print('docs size: ', len(docs))
+                print('docs[0]: ', docs[0])    
+                print('docs size: ', len(docs))
                 
                 contexts = []
                 for doc in docs:
                     contexts.append(doc.page_content)
-                #print('contexts: ', contexts)
+                print('contexts: ', contexts)
 
                 msg = get_summary(chat, contexts)
+                
+                print('msg: ', msg)
                 
             else:
                 msg = "uploaded file: "+object
