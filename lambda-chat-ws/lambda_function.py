@@ -2762,11 +2762,40 @@ def getResponse(connectionId, jsonBody):
                 s3r = boto3.resource("s3")
                 doc = s3r.Object(s3_bucket, s3_prefix+'/'+object)
 
-                json_body = doc.get()['Body'].read().decode('utf-8')   
+                contents = doc.get()['Body'].read().decode('utf-8')   
+                print('contents: ', contents)
+                
+                # print('contents: ', contents)
+                new_contents = str(contents).replace("\n"," ") 
+                print('length: ', len(new_contents))
 
+                text_splitter = RecursiveCharacterTextSplitter(
+                    chunk_size=1000,
+                    chunk_overlap=100,
+                    separators=["\n\n", "\n", ".", " ", ""],
+                    length_function = len,
+                ) 
+
+                texts = text_splitter.split_text(new_contents) 
+
+                docs = []
+                for i in range(len(texts)):
+                    docs.append(
+                        Document(
+                            page_content=texts[i],
+                            metadata={
+                                'name': object,
+                                # 'page':i+1,
+                                'uri': path+doc_prefix+parse.quote(object)
+                            }
+                        )
+                    )
+                print('docs[0]: ', docs[0])    
+                print('docs size: ', len(docs))
+                
                 contexts = []
                 for doc in docs:
-                    contexts.append(json_body)
+                    contexts.append(doc.page_content)
                 print('contexts: ', contexts)
 
                 msg = get_summary(chat, contexts)
