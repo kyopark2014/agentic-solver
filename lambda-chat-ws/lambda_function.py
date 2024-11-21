@@ -2355,7 +2355,7 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         paragraph: str
         question: str
         question_plus: str
-        choices: str
+        choices: list[str]
         answer: str
 
     class Plan(BaseModel):
@@ -2392,8 +2392,13 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         print('choices: ', state["choices"])    
         
         update_state_message("planning...", config)
+                
+        choices_str = ""
+        for i, choice in enumerate(choices):
+            choices_str += f"{i+1}. {choice}\n"
         
-        query = state["paragraph"] + "\n" + state["question"] + "\n" + state["question_plus"] + "\n" + state["choices"]
+        query = state["paragraph"] + "\n" + state["question"] + "\n" + state["question_plus"] + "\n" + choices_str
+        
         print('query: ', query)
         
         inputs = [HumanMessage(content=query)]
@@ -2421,7 +2426,6 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
 
     def execute_node(state: State, config):
         print("###### execute ######")
-        print('input: ', state["input"])
         plan = state["plan"]
         print('plan: ', plan) 
         
@@ -2449,7 +2453,6 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
             # print('transaction: ', transaction)
            
         return {
-            "input": state["input"],
             "plan": state["plan"],
             "info": transaction,
             "past_steps": [task],
@@ -2480,7 +2483,7 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
             "Make sure that each step has all the information needed - do not skip steps."
 
             "Your objective was this:"
-            "{input}"
+            "{question}"
 
             "Your original plan was this:"
             "{plan}"
@@ -2538,10 +2541,10 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         context = state['info']
         print('context: ', context)
         
-        query = state['input']
-        print('query: ', query)
+        question = state['question']
+        print('question: ', question)
         
-        if isKorean(query)==True:
+        if isKorean(question)==True:
             system = (
                 "Assistant의 이름은 서연이고, 질문에 대해 친절하게 답변하는 도우미입니다."
                 "다음의 <context> tag안의 참고자료를 이용하여 질문에 대한 답변합니다."
@@ -2565,7 +2568,7 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
                 "</context>"
             )
     
-        human = "{input}"
+        human = "{question}"
         
         prompt = ChatPromptTemplate.from_messages([("system", system), ("human", human)])
         # print('prompt: ', prompt)
@@ -2577,7 +2580,7 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
             response = chain.invoke(
                 {
                     "context": context,
-                    "input": query,
+                    "question": question,
                 }
             )
             result = response.content
