@@ -2370,21 +2370,22 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         print('paragraph: ', state["paragraph"])
         print('question: ', state["question"])
         print('question_plus: ', state["question_plus"])
-        print('choices: ', state["choices"])    
         
         update_state_message("planning...", config)
                 
         list_choices = ""
         for i, choice in enumerate(choices):
             list_choices += f"{i+1}. {choice}\n"
+        print('list_choices: ', list_choices)    
         
         if isKorean(question)==True:            
             system = (
-                "당신은 수능 국어 문제를 풀고 있습니다."
-                "<paragraph> tag의 내용을 참조하여 <question> tag의 질문에 대한 답변을 <choice> tag에서 선택하고자 합니다."
-                "For the given objective, come up with a simple step by step plan."
-                "This plan should involve individual tasks, that if executed correctly will yield the correct answer. Do not add any superfluous steps."
-                "The result of the final step should be the final answer. Make sure that each step has all the information needed - do not skip steps."                
+                "당신은 수능 국어 문제를 잘푸는 일타강사입니다."
+                "<paragraph> tag의 내용을 참조하여 <question> tag의 질문에 대한 답변을 <choice> tag에서 선택하려고 합니다."
+                "<question> tag의 질문을 해결하기 위한 단계별 계획을 세우세요."
+                "이 계획은 답변을 구하기 위한 상세한 단계를 포함합니다. 이를 올바르게 실행하면 정확한 답을 얻을 수 있습니다. 불필요한 단계는 추가하지 마십시오."
+                # "This plan should involve individual tasks, that if executed correctly will yield the correct answer. Do not add any superfluous steps."
+                # "The result of the final step should be the final answer. Make sure that each step has all the information needed - do not skip steps."                
             )
             
             human = (
@@ -2563,7 +2564,7 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         
         # get final answer
         context = state['info']
-        print('context: ', context)
+        # print('context: ', context)
         
         question = state['question']
         print('question: ', question)
