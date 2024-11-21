@@ -2383,10 +2383,10 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
                 "당신은 수능 국어 문제를 잘푸는 일타강사입니다."
                 "<paragraph> tag의 내용을 참조하여 <question> tag의 질문에 대한 적절한 답변을 <choice> tag안에서 선택하가 위한 단계별 계획을 세우세요."
                 # "이 계획은 답변을 구하기 위한 단계를 포함합니다. 이를 올바르게 실행하면 정확한 답을 얻을 수 있습니다. 불필요한 단계는 추가하지 마십시오."
-                # "This plan should involve individual tasks, that if executed correctly will yield the correct answer. Do not add any superfluous steps."
-                # "The result of the final step should be the final answer. Make sure that each step has all the information needed - do not skip steps."                
+                "This plan should involve individual tasks, that if executed correctly will yield the correct answer. Do not add any superfluous steps."
+                "The result of the final step should be the final answer. Make sure that each step has all the information needed - do not skip steps."                
                 
-                "다음 형식으로 단계별 계획을 세웁니다. 각 단계는 반드시 한문장으로 구성합니다."
+                "다음 형식으로 단계별 계획을 세웁니다."
                 "1. [질문을 해결하기 위한 단계]"
                 "2. [질문을 해결하기 위한 단계]"
                 "..."
@@ -3136,13 +3136,14 @@ def getResponse(connectionId, jsonBody):
                 for i, problem in enumerate(problems):
                     print(f'preoblem[{i}]: {problem}')
                 
-                question = problems[0]["question"]
+                n = 1
+                question = problems[n]["question"]
                 print('question: ', question)                
                 question_plus = ""
-                if "question_plus" in problems[0]:
-                    question_plus = problems[0]["question_plus"]
+                if "question_plus" in problems[n]:
+                    question_plus = problems[n]["question_plus"]
                     print('question_plus: ', question_plus)
-                choices = problems[0]["choices"]
+                choices = problems[n]["choices"]
                 print('choices: ', choices)
                 
                 msg = solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plus, choices)
