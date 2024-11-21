@@ -2370,13 +2370,13 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         print('paragraph: ', state["paragraph"])
         print('question: ', state["question"])
         print('question_plus: ', state["question_plus"])
-        
-        update_state_message("planning...", config)
                 
         list_choices = ""
         for i, choice in enumerate(choices):
             list_choices += f"{i+1}. {choice}\n"
         print('list_choices: ', list_choices)    
+        
+        update_state_message("planning...", config)
         
         if isKorean(question)==True:            
             system = (
@@ -2457,7 +2457,7 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         update_state_message("executing...", config)
         
         plan_str = "\n".join(f"{i+1}. {step}" for i, step in enumerate(plan))
-        print("plan_str: ", plan_str)
+        # print("plan_str: ", plan_str)
         
         task = plan[0]
         print('task: ', task)
@@ -2498,6 +2498,15 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         print('#### replan ####')
         print('state of replan node: ', state)
         
+        print('paragraph: ', state["paragraph"])
+        print('question: ', state["question"])
+        print('question_plus: ', state["question_plus"])
+                
+        list_choices = ""
+        for i, choice in enumerate(choices):
+            list_choices += f"{i+1}. {choice}\n"
+        print('list_choices: ', list_choices)    
+        
         update_state_message("replanning...", config)
         
         replanner_prompt = ChatPromptTemplate.from_template(
@@ -2508,8 +2517,22 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
             "Make sure that each step has all the information needed - do not skip steps."
 
             "Your objective was this:"
+            "<paragraph>"
+            "{paragraph}"
+            "</paragraph>"
+            
+            "<question_plus>"
+            "{question_plus}"
+            "</question_plus>"
+            
+            "<question>"
             "{question}"
-
+            "</question>"
+            
+            "<list_choices>"
+            "{list_choices}"
+            "</list_choices>"
+            
             "Your original plan was this:"
             "{plan}"
 
@@ -2525,7 +2548,14 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         chat = get_chat()
         replanner = replanner_prompt | chat
         
-        output = replanner.invoke(state)
+        output = replanner.invoke({
+            "paragraph": state["paragraph"],
+            "question_plus": state["question_plus"],
+            "question": state["question"],
+            "list_choices": list_choices,
+            "plan": state["plan"],
+            "past_steps": state["past_steps"]
+        })
         print('replanner output: ', output.content)
         
         result = None
