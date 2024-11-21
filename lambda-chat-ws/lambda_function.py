@@ -2365,25 +2365,6 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
             description="different steps to follow, should be in sorted order"
         )
 
-    def get_planner():
-        system = (
-            "For the given objective, come up with a simple step by step plan."
-            "This plan should involve individual tasks, that if executed correctly will yield the correct answer. Do not add any superfluous steps."
-            "The result of the final step should be the final answer. Make sure that each step has all the information needed - do not skip steps."
-        )
-            
-        planner_prompt = ChatPromptTemplate.from_messages(
-            [
-                ("system", system),
-                ("placeholder", "{messages}"),
-            ]
-        )
-        
-        chat = get_chat()   
-        
-        planner = planner_prompt | chat
-        return planner
-    
     def plan_node(state: State, config):
         print("###### plan ######")
         print('paragraph: ', state["paragraph"])
@@ -2397,14 +2378,57 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         for i, choice in enumerate(choices):
             choices_str += f"{i+1}. {choice}\n"
         
-        query = state["paragraph"] + "\n" + state["question"] + "\n" + state["question_plus"] + "\n" + choices_str
-        
-        print('query: ', query)
-        
-        inputs = [HumanMessage(content=query)]
+        if isKorean(question)==True:            
+            system = (
+                "당신은 수능 국어 문제를 풀고 있습니다."
+                "<paragraph> tag의 내용을 참조하여 <question> tag의 질문에 대한 답변을 <choice> tag에서 선택하고자 합니다."
+                "For the given objective, come up with a simple step by step plan."
+                "This plan should involve individual tasks, that if executed correctly will yield the correct answer. Do not add any superfluous steps."
+                "The result of the final step should be the final answer. Make sure that each step has all the information needed - do not skip steps."                
+            )
+            
+            human = (
+                "<paragraph>"
+                "{paragraph}"
+                "</paragraph>"
 
-        planner = get_planner()
-        response = planner.invoke({"messages": inputs})
+                "<question>"
+                "{question}"
+                "</question>"
+
+                "<question_plus>"
+                "{question_plus}"
+                "</question_plus>"
+
+                "<choices>"
+                "{choices_str}"
+                "</choices>"                
+            )
+                            
+        else:
+            system = (
+                "For the given objective, come up with a simple step by step plan."
+                "This plan should involve individual tasks, that if executed correctly will yield the correct answer. Do not add any superfluous steps."
+                "The result of the final step should be the final answer. Make sure that each step has all the information needed - do not skip steps."
+            )
+            
+        planner_prompt = ChatPromptTemplate.from_messages(
+            [
+                ("system", system),
+                ("human", human),
+            ]
+        )
+        
+        chat = get_chat()   
+        
+        planner = planner_prompt | chat
+                        
+        response = planner.invoke({
+            "paragraph": paragraph,
+            "question": question,
+            "question_plus": question_plus,
+            "choices": choices_str
+        })
         print('response.content: ', response.content)
         
         for attempt in range(5):
