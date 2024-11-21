@@ -2344,6 +2344,300 @@ def run_plan_and_exeucute(connectionId, requestId, query):
         
     return value["answer"]
 
+####################### LangGraph #######################
+# Plan and Execute
+#########################################################
+def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plus, choices):
+    class State(TypedDict):
+        plan: list[str]
+        past_steps: Annotated[List[Tuple], operator.add]
+        info: Annotated[List[Tuple], operator.add]
+        paragraph: str
+        question: str
+        question_plus: str
+        choices: str
+        answer: str
+
+    class Plan(BaseModel):
+        """List of steps as a json format"""
+
+        steps: List[str] = Field(
+            description="different steps to follow, should be in sorted order"
+        )
+
+    def get_planner():
+        system = (
+            "For the given objective, come up with a simple step by step plan."
+            "This plan should involve individual tasks, that if executed correctly will yield the correct answer. Do not add any superfluous steps."
+            "The result of the final step should be the final answer. Make sure that each step has all the information needed - do not skip steps."
+        )
+            
+        planner_prompt = ChatPromptTemplate.from_messages(
+            [
+                ("system", system),
+                ("placeholder", "{messages}"),
+            ]
+        )
+        
+        chat = get_chat()   
+        
+        planner = planner_prompt | chat
+        return planner
+    
+    def plan_node(state: State, config):
+        print("###### plan ######")
+        print('paragraph: ', state["paragraph"])
+        print('question: ', state["question"])
+        print('question_plus: ', state["question_plus"])
+        print('choices: ', state["choices"])    
+        
+        update_state_message("planning...", config)
+        
+        query = state["paragraph"] + "\n" + state["question"] + "\n" + state["question_plus"] + "\n" + state["choices"]
+        print('query: ', query)
+        
+        inputs = [HumanMessage(content=query)]
+
+        planner = get_planner()
+        response = planner.invoke({"messages": inputs})
+        print('response.content: ', response.content)
+        
+        for attempt in range(5):
+            chat = get_chat()
+            structured_llm = chat.with_structured_output(Plan, include_raw=True)
+            info = structured_llm.invoke(response.content)
+            print(f'attempt: {attempt}, info: {info}')
+            
+            if not info['parsed'] == None:
+                parsed_info = info['parsed']
+                # print('parsed_info: ', parsed_info)        
+                print('steps: ', parsed_info.steps)                
+                return {
+                    "plan": parsed_info.steps
+                }
+        
+        print('parsing_error: ', info['parsing_error'])
+        return {"plan": []}
+
+    def execute_node(state: State, config):
+        print("###### execute ######")
+        print('input: ', state["input"])
+        plan = state["plan"]
+        print('plan: ', plan) 
+        
+        update_state_message("executing...", config)
+        
+        plan_str = "\n".join(f"{i+1}. {step}" for i, step in enumerate(plan))
+        print("plan_str: ", plan_str)
+        
+        task = plan[0]
+        print('task: ', task)
+                
+        inputs = [HumanMessage(content=task)]
+        output = tool_app.invoke({"messages": inputs}, config)
+        print('executor output: ', output)
+        
+        transaction = []
+        if "messages" in output:
+            human = output["messages"][0]
+            print('human: ', human.content)
+
+            ai = output["messages"][-1]
+            print('ai: ', ai.content)
+            
+            transaction = [HumanMessage(content=human.content), AIMessage(content=ai.content)]
+            # print('transaction: ', transaction)
+           
+        return {
+            "input": state["input"],
+            "plan": state["plan"],
+            "info": transaction,
+            "past_steps": [task],
+        }
+
+    class Response(BaseModel):
+        """Response to user."""
+        response: str
+        
+    class Act(BaseModel):
+        """Action to perform as a json format"""
+        action: Union[Response, Plan] = Field(
+            description="Action to perform. If you want to respond to user, use Response. "
+            "If you need to further use tools to get the answer, use Plan."
+        )
+
+    def replan_node(state: State, config):
+        print('#### replan ####')
+        print('state of replan node: ', state)
+        
+        update_state_message("replanning...", config)
+        
+        replanner_prompt = ChatPromptTemplate.from_template(
+            "For the given objective, come up with a simple step by step plan."
+            "This plan should involve individual tasks, that if executed correctly will yield the correct answer."
+            "Do not add any superfluous steps."
+            "The result of the final step should be the final answer."
+            "Make sure that each step has all the information needed - do not skip steps."
+
+            "Your objective was this:"
+            "{input}"
+
+            "Your original plan was this:"
+            "{plan}"
+
+            "You have currently done the follow steps:"
+            "{past_steps}"
+
+            "Update your plan accordingly."
+            "If no more steps are needed and you can return to the user, then respond with that."
+            "Otherwise, fill out the plan."
+            "Only add steps to the plan that still NEED to be done. Do not return previously done steps as part of the plan."
+        )
+        
+        chat = get_chat()
+        replanner = replanner_prompt | chat
+        
+        output = replanner.invoke(state)
+        print('replanner output: ', output.content)
+        
+        result = None
+        for attempt in range(5):
+            chat = get_chat()
+            structured_llm = chat.with_structured_output(Act, include_raw=True)    
+            info = structured_llm.invoke(output.content)
+            print(f'attempt: {attempt}, info: {info}')
+            
+            if not info['parsed'] == None:
+                result = info['parsed']
+                print('replan result: ', result)
+                break
+                    
+        if result == None:
+            return {"response": "답을 찾지 못하였습니다. 다시 시도해주세요."}
+        else:
+            if isinstance(result.action, Response):  # "parsed":"Act(action=Response(response="
+                return {
+                    "response": result.action.response,
+                    "info": [result.action.response]
+                }
+            else:  # "parsed":"Act(action=Plan(steps=
+                return {"plan": result.action.steps}
+        
+    def should_end(state: State) -> Literal["continue", "end"]:
+        print('#### should_end ####')
+        print('state: ', state)
+        if "response" in state and state["response"]:
+            return "end"
+        else:
+            return "continue"    
+        
+    def final_answer(state: State) -> str:
+        print('#### final_answer ####')
+        
+        # get final answer
+        context = state['info']
+        print('context: ', context)
+        
+        query = state['input']
+        print('query: ', query)
+        
+        if isKorean(query)==True:
+            system = (
+                "Assistant의 이름은 서연이고, 질문에 대해 친절하게 답변하는 도우미입니다."
+                "다음의 <context> tag안의 참고자료를 이용하여 질문에 대한 답변합니다."
+                "답변의 이유를 풀어서 명확하게 설명합니다."
+                "결과는 <result> tag를 붙여주세요."
+                
+                "<context>"
+                "{context}"
+                "</context>"
+            )
+        else: 
+            system = (
+                "Here is pieces of context, contained in <context> tags."
+                "Provide a concise answer to the question at the end."
+                "Explains clearly the reason for the answer."
+                "If you don't know the answer, just say that you don't know, don't try to make up an answer."
+                "Put it in <result> tags."
+                
+                "<context>"
+                "{context}"
+                "</context>"
+            )
+    
+        human = "{input}"
+        
+        prompt = ChatPromptTemplate.from_messages([("system", system), ("human", human)])
+        # print('prompt: ', prompt)
+                    
+        chat = get_chat()
+        chain = prompt | chat
+        
+        try: 
+            response = chain.invoke(
+                {
+                    "context": context,
+                    "input": query,
+                }
+            )
+            result = response.content
+            output = result[result.find('<result>')+8:len(result)-9] # remove <result> tag
+            print('output: ', output)
+            
+        except Exception:
+            err_msg = traceback.format_exc()
+            print('error message: ', err_msg)      
+            
+        return {"answer": output}  
+
+    def buildPlanAndExecute():
+        workflow = StateGraph(State)
+        workflow.add_node("planner", plan_node)
+        workflow.add_node("executor", execute_node)
+        workflow.add_node("replaner", replan_node)
+        workflow.add_node("final_answer", final_answer)
+        
+        workflow.set_entry_point("planner")
+        workflow.add_edge("planner", "executor")
+        workflow.add_edge("executor", "replaner")
+        workflow.add_conditional_edges(
+            "replaner",
+            should_end,
+            {
+                "continue": "executor",
+                "end": "final_answer",
+            },
+        )
+        workflow.add_edge("final_answer", END)
+
+        return workflow.compile()
+
+    app = buildPlanAndExecute()    
+    
+    isTyping(connectionId, requestId, "")
+        
+    inputs = {
+        "question": question,
+        "question_plus": question_plus,
+        "paragraph": paragraph,
+        "choices": choices
+    }
+    config = {
+        "recursion_limit": 50,
+        "requestId": requestId,
+        "connectionId": connectionId
+    }
+    
+    for output in app.stream(inputs, config):   
+        for key, value in output.items():
+            print(f"Finished: {key}")
+            #print("value: ", value)            
+    print('value: ', value)
+    
+    readStreamMsg(connectionId, requestId, value["answer"])
+        
+    return value["answer"]
+
 #########################################################
 contentList = []
 def check_duplication(docs):
@@ -2779,8 +3073,17 @@ def getResponse(connectionId, jsonBody):
                 
                 for i, problem in enumerate(problems):
                     print(f'preoblem[{i}]: {problem}')
+                
+                question = problems[0]["question"]
+                print('question: ', question)
+                question_plus = problems[0]["question_plus"]
+                print('question_plus: ', question_plus)
+                choices = problems[0]["choices"]
+                print('choices: ', choices)
+                
+                msg = solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plus, choices)
                     
-                msg = "uploaded file: "+object
+                # msg = "uploaded file: "+object
                 
             else:
                 msg = "uploaded file: "+object
