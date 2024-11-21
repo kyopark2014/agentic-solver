@@ -2381,19 +2381,20 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         if isKorean(question)==True:            
             system = (
                 "당신은 복잡한 문제를 해결하기 위해 step by step plan을 생성하는 AI agent입니다."
-                "<paragraph> tag의 내용을 참조하여 <question> tag의 질문에 대한 적절한 답변을 <choice> tag안에서 선택하가 위한 단계별 계획을 세우세요."
-                # "이 계획은 답변을 구하기 위한 단계를 포함합니다. 이를 올바르게 실행하면 정확한 답을 얻을 수 있습니다. 불필요한 단계는 추가하지 마십시오."
-                #"This plan should involve individual tasks, that if executed correctly will yield the correct answer. Do not add any superfluous steps."
-                #"The result of the final step should be the final answer. Make sure that each step has all the information needed - do not skip steps."                
                 
                 "다음 형식으로 단계별 계획을 세웁니다."
                 "각 단계는 반드시 하나의 문장으로 AI agent가 수행할 내용을 명확히 나타냅니다."
                 "1. [질문을 해결하기 위한 단계]"
                 "2. [질문을 해결하기 위한 단계]"
-                "..."
+                "..."                
             )
             
             human = (
+                "<paragraph> tag의 내용을 참조하여 <question> tag의 질문에 대한 적절한 답변을 <choice> tag안에서 선택하가 위한 단계별 계획을 세우세요."
+                # "이 계획은 답변을 구하기 위한 단계를 포함합니다. 이를 올바르게 실행하면 정확한 답을 얻을 수 있습니다. 불필요한 단계는 추가하지 마십시오."
+                #"This plan should involve individual tasks, that if executed correctly will yield the correct answer. Do not add any superfluous steps."
+                #"The result of the final step should be the final answer. Make sure that each step has all the information needed - do not skip steps."                
+                
                 "<paragraph>"
                 "{paragraph}"
                 "</paragraph>"
