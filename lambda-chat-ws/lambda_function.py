@@ -3060,8 +3060,8 @@ def getResponse(connectionId, jsonBody):
                 # print('contents: ', contents)
                 
                 json_data = json.loads(contents)
-                for i, data in enumerate(json_data):
-                    print(f'index: {i}: {json.dumps(data)}')
+                #for i, data in enumerate(json_data):
+                #    print(f'index: {i}: {json.dumps(data)}')
                     
                 idx = 0
                 question_group = json_data[idx]
@@ -3075,9 +3075,11 @@ def getResponse(connectionId, jsonBody):
                     print(f'preoblem[{i}]: {problem}')
                 
                 question = problems[0]["question"]
-                print('question: ', question)
-                question_plus = problems[0]["question_plus"]
-                print('question_plus: ', question_plus)
+                print('question: ', question)                
+                question_plus = ""
+                if "question_plus" in problems[0]:
+                    question_plus = problems[0]["question_plus"]
+                    print('question_plus: ', question_plus)
                 choices = problems[0]["choices"]
                 print('choices: ', choices)
                 
