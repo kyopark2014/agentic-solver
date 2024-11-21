@@ -2386,6 +2386,11 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
                 "이 계획은 답변을 구하기 위한 상세한 단계를 포함합니다. 이를 올바르게 실행하면 정확한 답을 얻을 수 있습니다. 불필요한 단계는 추가하지 마십시오."
                 # "This plan should involve individual tasks, that if executed correctly will yield the correct answer. Do not add any superfluous steps."
                 # "The result of the final step should be the final answer. Make sure that each step has all the information needed - do not skip steps."                
+                
+                "다음 형식으로 단계별 계획을 세웁니다. 각 단계는 한 줄을 차지합니다:"
+                "1. [문단의 주요 내용을 자세히 설명하십시오.]"
+                "2. [문단의 주요 내용을 자세히 설명하십시오.]"
+                "..."
             )
             
             human = (
