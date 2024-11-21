@@ -2374,9 +2374,9 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         
         update_state_message("planning...", config)
                 
-        choices_str = ""
+        list_choices = ""
         for i, choice in enumerate(choices):
-            choices_str += f"{i+1}. {choice}\n"
+            list_choices += f"{i+1}. {choice}\n"
         
         if isKorean(question)==True:            
             system = (
@@ -2401,7 +2401,7 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
                 "</question_plus>"
 
                 "<choices>"
-                "{choices_str}"
+                "{list_choices}"
                 "</choices>"                
             )
                             
@@ -2427,7 +2427,7 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
             "paragraph": paragraph,
             "question": question,
             "question_plus": question_plus,
-            "choices": choices_str
+            "list_choices": list_choices
         })
         print('response.content: ', response.content)
         
