@@ -2493,6 +2493,14 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         task = plan[0]
         print('task: ', task)                        
         #print('paragraph: ', state["paragraph"])
+        
+        context = ""
+        for info in state['info']:
+            if isinstance(info, HumanMessage):
+                context += info.content+"\n"
+            else:
+                context += info.content+"\n\n"
+        print('context: ', context)
                         
         system = (
             "당신은 국어 수능문제를 푸는 일타강사입니다."
@@ -2593,7 +2601,7 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
             "question": state["question"],
             "question_plus": state["question_plus"],
             "list_choices": list_choices,
-            "info": state["info"],
+            "info": context,
             "task": task
         })
         print('response.content: ', response.content)
@@ -2829,11 +2837,11 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         info = state['info']
         
         context = ""
-        for content in state['info']:
-            if isinstance(content, HumanMessage):
-                context += content.content+"\n"
+        for info in state['info']:
+            if isinstance(info, HumanMessage):
+                context += info.content+"\n"
             else:
-                context += content.content+"\n\n"
+                context += info.content+"\n\n"
         print('context: ', context)
                                 
         print('paragraph: ', state["paragraph"])
@@ -2844,7 +2852,7 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         choices = state["choices"]
         for i, choice in enumerate(choices):
             list_choices += f"({i+1}) {choice}\n"
-        print('list_choices: ', list_choices)    
+        print('list_choices: ', list_choices)
         
         if isKorean(question)==True:
             system = (
@@ -2929,11 +2937,11 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
             result = response.content
             output = result[result.find('<result>')+8:len(result)-9] # remove <result> tag
             print('output: ', output)
-            
+
         except Exception:
             err_msg = traceback.format_exc()
-            print('error message: ', err_msg)      
-            
+            print('error message: ', err_msg)
+
         return {"answer": output}  
 
     def buildPlanAndExecute():
