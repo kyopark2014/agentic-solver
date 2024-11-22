@@ -2372,6 +2372,7 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         print('question_plus: ', state["question_plus"])
                 
         list_choices = ""
+        choices = state["choices"]
         for i, choice in enumerate(choices):
             list_choices += f"({i+1}) {choice}\n"
         print('list_choices: ', list_choices)    
@@ -2466,6 +2467,7 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         print('plan: ', plan) 
         
         list_choices = ""
+        choices = state["choices"]
         for i, choice in enumerate(choices):
             list_choices += f"({i+1}) {choice}\n"
         # print('list_choices: ', list_choices)    
@@ -2566,6 +2568,7 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         print('past_steps: ', state["past_steps"])
                 
         list_choices = ""
+        choices = state["choices"]
         for i, choice in enumerate(choices):
             list_choices += f"({i+1}) {choice}\n"
         print('list_choices: ', list_choices)    
@@ -2700,10 +2703,15 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         
         # get final answer
         context = state['info']
-        # print('context: ', context)
-        
+        # print('context: ', context)        
         question = state['question']
         print('question: ', question)
+        
+        list_choices = ""
+        choices = state["choices"]
+        for i, choice in enumerate(choices):
+            list_choices += f"({i+1}) {choice}\n"
+        print('list_choices: ', list_choices)    
         
         if isKorean(question)==True:
             system = (
@@ -2780,7 +2788,10 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
             response = chain.invoke(
                 {
                     "context": context,
-                    "question": question,
+                    "paragraph": state["paragraph"],                    
+                    "question": state["question"],
+                    "question_plus": state["question_plus"],
+                    "list_choices": list_choices
                 }
             )
             result = response.content
