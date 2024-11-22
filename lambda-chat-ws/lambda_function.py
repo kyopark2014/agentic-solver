@@ -2496,6 +2496,8 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
                         
         system = (
             "당신은 국어 수능문제를 푸는 일타강사입니다."
+            "모든 선택지마다 근거를 지문에서 찾아 설명하세요."
+            "문제를 풀이할 때 모든 선택지들을 검토하세요."
             # "다음의 주어진 문장으로 적절한 답변을 생성하세요."
         )
             
@@ -2527,23 +2529,32 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         #     "</task>"
         # )
         human = (
-            "당신은 <paragraph> tag의 주어진 문장으로 부터 <task> tag의 단계를 수행하고 결과를 기술합니다." 
-            "이를 위해 <task> tag의 단계를 수행하고 결과를 기술합니다."
+            "당신의 목표는 <paragraph> tag의 주어진 문장으로 부터 <question> tag의 주어진 질문에 대한 적절한 답변을 <choice> tag안에서 선택지에서 찾는것입니다."
+            "여기에서는 복잡한 질문의 답변을 효과적으로 구하기 위해서, <task> tag의 실행 단계를 수행하고 결과와 근거를 명확히 설명합니다." 
+            # "<task> tag의 단계를 수행하고 결과 근거를 명확히 설명합니다."
+            # "<task> tag의 단계를 수행할 때에 모든 선택지들을 검토하세요."
+            # "모든 선택지마다 근거를 지문에서 찾아 설명하세요."
+            # "최종 답변과 근거를 기술합니다."
             # "결과에 <result> tag를 붙여주세요."
                 
             "주어진 문장:"
             "<paragraph>"
             "{paragraph}"
-            
-            "{question_plus}"                    
             "</paragraph>"
-
+                
+            "주어진 질문:"
+            "<question>"
+            "{question}"
+                
+            "{question_plus}"
+            "</question>"
+            
             "선택지:"
             "<choices>"
             "{list_choices}"
             "</choices>"
 
-            "단계:"
+            "실행 단계:"
             "<task>"
             "{task}"
             "</task>"
