@@ -2570,11 +2570,11 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         print('response.content: ', response.content)
         
         result = response.content
-        output = result[result.find('<result>')+8:len(result)-9]
-        print('output: ', output)                
-        transaction = [HumanMessage(content=task), AIMessage(content=output)]
+        #output = result[result.find('<result>')+8:len(result)-9]
+        #print('output: ', output)                
+        #transaction = [HumanMessage(content=task), AIMessage(content=output)]
         
-        #transaction = [HumanMessage(content=task), AIMessage(content=result)]
+        transaction = [HumanMessage(content=task), AIMessage(content=result)]
         print('transaction: ', transaction)
            
         return {
@@ -2619,19 +2619,20 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
                 "The result of the final step should be the final answer."
                 "Make sure that each step has all the information needed - do not skip steps."
 
-                "Your objective was this:"
+                #"Your objective was this:"
+                "주어진 문장:"
                 "<paragraph>"
                 "{paragraph}"
                 "</paragraph>"
                 
-                "<question_plus>"
-                "{question_plus}"
-                "</question_plus>"
-                
+                "주어진 질문:"
                 "<question>"
                 "{question}"
+                
+                "{question_plus}"
                 "</question>"
                 
+                "선택지:"
                 "<list_choices>"
                 "{list_choices}"
                 "</list_choices>"
