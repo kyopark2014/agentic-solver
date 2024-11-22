@@ -2448,7 +2448,7 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
             "question_plus": question_plus,
             "list_choices": list_choices
         })
-        # print('response.content: ', response.content)
+        print('response.content: ', response.content)
         result = response.content
         output = result[result.find('<result>')+8:len(result)-9]
         
@@ -2543,7 +2543,7 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
             # "여기에서는 복잡한 질문의 답변을 단계적으로 구하기 위해서, <task> tag의 실행 단계를 수행하고 결과와 근거를 명확히 설명합니다." 
             "<previous_result> tag에 있는 이전 단계의 결과를 참조하여, <task> tag의 실행 단계를 수행하고 적절한 답변을 구합니다."
             "문제를 풀이할 때 모든 선택지마다 근거를 지문에서 찾아 설명하세요."
-            "선택지에서 가장 정답에 가까운 항목을 선택합니다."
+            "선택지에서 가장 정답에 가까운 항목을 반드시 선택합니다."
             "최종 답변에는 실행 단계의 결과와 근거를 명확히 포함합니다."
             "최종 답변의 신뢰도를 1-5 사이의 숫자로 나타냅니다. 신뢰되는 <confidence> tag를 붙입니다."
             #, <task> tag의 실행 단계를 수행하고 결과와 근거를 명확히 설명합니다." 
