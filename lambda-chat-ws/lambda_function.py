@@ -3186,7 +3186,7 @@ def getResponse(connectionId, jsonBody):
                 for i, problem in enumerate(problems):
                     print(f'preoblem[{i}]: {problem}')
                 
-                n = 1
+                n = 0
                 question = problems[n]["question"]
                 print('question: ', question)                
                 question_plus = ""
