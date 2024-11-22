@@ -2789,9 +2789,9 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         print('#### should_end ####')
         # print('state: ', state)
         
-        planning_steps = state["planning_steps"]
-        print('planning_steps: ', planning_steps)
-        if len(planning_steps)<=2:
+        plan = state["plan"]
+        print('plan: ', plan)
+        if len(plan)<=2:
             next = "end"
         else:
             next = "continue"
