@@ -2804,7 +2804,7 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         
         # get final answer
         context = state['info']
-        # print('context: ', context)
+        print('context: ', context)
                         
         print('paragraph: ', state["paragraph"])
         print('question: ', state["question"])
@@ -2818,13 +2818,7 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         
         if isKorean(question)==True:
             system = (
-                "당신은 국어 수능문제를 푸는 일타강사입니다."
-                "다음의 <context> tag안에는 이전 단계에서 검토한 결과가 있습니다."
-                
-                "이전 단계에서 검토한 결과:"
-                "<context>"
-                "{context}"
-                "</context>"                            
+                "당신은 국어 수능문제를 푸는 일타강사입니다."                
             )
             
             human = (
@@ -2832,13 +2826,18 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
                 "질문에 대한 답을 선택지 중에 한 개의 골라서 대답해야 합니다."
                 "답변의 이유를 풀어서 명확하게 설명합니다."
                 "결과는 <result> tag를 붙여주세요."       
+                
+                "이전 단계에서 검토한 결과:"
+                "<context>"
+                "{context}"
+                "</context>"
                                 
                 "주어진 문장:"
                 "<paragraph>"
                 "{paragraph}"
                 "</paragraph>"
 
-                "질문:"
+                "주어진 질문:"
                 "<question>"
                 "{question}"
                                 
@@ -2867,7 +2866,7 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
                 "{paragraph}"
                 "</paragraph>"
 
-                "질문:"
+                "주어진 질문:"
                 "<question>"
                 "{question}"
                                 
