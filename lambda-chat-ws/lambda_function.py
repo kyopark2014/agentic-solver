@@ -2826,9 +2826,16 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         print('#### final_answer ####')
         
         # get final answer
-        context = state['info']
+        info = state['info']
+        
+        context = ""
+        for content in state['info']:
+            if isinstance(content, HumanMessage):
+                context += content.content+"\n"
+            else:
+                context += content.content+"\n\n"
         print('context: ', context)
-                        
+                                
         print('paragraph: ', state["paragraph"])
         print('question: ', state["question"])
         print('question_plus: ', state["question_plus"])
