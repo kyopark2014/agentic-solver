@@ -2542,6 +2542,8 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
             "당신의 목표는 <paragraph> tag의 주어진 문장으로 부터 <question> tag의 주어진 질문에 대한 적절한 답변을 <choice> tag안에서 선택지에서 찾는것입니다."
             # "여기에서는 복잡한 질문의 답변을 단계적으로 구하기 위해서, <task> tag의 실행 단계를 수행하고 결과와 근거를 명확히 설명합니다." 
             "<previous_result> tag에 있는 이전 단계의 결과를 참조하여, <task> tag의 실행 단계를 수행하고 적절한 답변을 구합니다."
+            "문제를 풀이할 때 모든 선택지마다 근거를 지문에서 찾아 설명하세요."
+            "선택지에서 가장 정답에 가까운 항목을 선택합니다."
             "최종 답변에는 실행 단계의 결과와 근거를 명확히 포함합니다."
             "최종 답변의 신뢰도를 1-5 사이의 숫자로 나타냅니다. 신뢰되는 <confidence> tag를 붙입니다."
             #, <task> tag의 실행 단계를 수행하고 결과와 근거를 명확히 설명합니다." 
@@ -2549,7 +2551,6 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
             
             # "<task> tag의 단계를 수행하고 결과 근거를 명확히 설명합니다."
             # "<task> tag의 단계를 수행할 때에 모든 선택지들을 검토하세요."
-            # "모든 선택지마다 근거를 지문에서 찾아 설명하세요."
             # "최종 답변과 근거를 기술합니다."
             # "결과에 <result> tag를 붙여주세요."
                 
