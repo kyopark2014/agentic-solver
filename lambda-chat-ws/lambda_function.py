@@ -2621,11 +2621,7 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
             system = (
                 "당신은 복잡한 문제를 해결하기 위해 step by step plan을 생성하는 AI agent입니다."
                 
-                "단계별 계획의 형식은 아래와 같습니다."
-                "각 단계는 반드시 한줄의 문장으로 AI agent가 수행할 내용을 명확히 나타냅니다."
-                "1. [질문을 해결하기 위한 단계]"
-                "2. [질문을 해결하기 위한 단계]"
-                "..."                
+                       
             )
             
             human = (
@@ -2666,6 +2662,12 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
                 "당신의 계획을 상황에 맞게 수정하세요."
                 "수정된 계획에는 <plan> tag를 붙여주세요."
                 "만약 더 이상 계획을 세우지 않아도 <question> tag의 주어진 질문에 답변할 있다면, 최종 결과로 <question>에 대한 답변을 <result> tag를 붙여 전달합니다."
+                
+                "수정된 계획의 형식은 아래와 같습니다."
+                "각 단계는 반드시 한줄의 문장으로 AI agent가 수행할 내용을 명확히 나타냅니다."
+                "1. [질문을 해결하기 위한 단계]"
+                "2. [질문을 해결하기 위한 단계]"
+                "..."         
                 
                 #"If no more steps are needed and you can return to the user, then respond with that."
                 #"Otherwise, fill out the plan with <result> tag."                
