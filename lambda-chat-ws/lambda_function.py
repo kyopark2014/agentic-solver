@@ -2179,7 +2179,7 @@ def run_plan_and_exeucute(connectionId, requestId, query):
 
     def replan_node(state: State, config):
         print('#### replan ####')
-        print('state of replan node: ', state)
+        # print('state of replan node: ', state)
         
         update_state_message("replanning...", config)
         
@@ -2236,11 +2236,17 @@ def run_plan_and_exeucute(connectionId, requestId, query):
         
     def should_end(state: State) -> Literal["continue", "end"]:
         print('#### should_end ####')
-        print('state: ', state)
+        # print('state: ', state)
+        
         if "response" in state and state["response"]:
-            return "end"
+            print('response: ', state["response"])            
+            next = "end"
         else:
-            return "continue"    
+            print('plan: ', state["plan"])
+            next = "continue"
+        print(f"should_end response: {next}")
+        
+        return next
         
     def final_answer(state: State) -> str:
         print('#### final_answer ####')
@@ -2471,7 +2477,7 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
     def execute_node(state: State, config):
         print("###### execute ######")
         plan = state["plan"]
-        print('plan: ', plan) 
+        # print('plan: ', plan) 
         
         list_choices = ""
         choices = state["choices"]
@@ -2650,13 +2656,13 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
                 
                 "다음 형식으로 단계별 계획을 다시 세웁니다."
                 "If no more steps are needed and you can return to the user, then respond with that."
-                "Otherwise, fill out the plan."
-                "이때, 각 단계는 반드시 한줄의 문장으로 AI agent가 수행할 내용을 명확히 나타냅니다."
-                "1. [질문을 해결하기 위한 단계]"
-                "2. [질문을 해결하기 위한 단계]"
-                "..."                
+                "Otherwise, fill out the plan with <result> tag."
+                #"이때, 각 단계는 반드시 한줄의 문장으로 AI agent가 수행할 내용을 명확히 나타냅니다."
+                #"1. [질문을 해결하기 위한 단계]"
+                #"2. [질문을 해결하기 위한 단계]"
+                #"..."                
                 
-                "단계별 계획에 <result> tag를 붙여주세요."
+                #"단계별 계획에 <result> tag를 붙여주세요."
             )
         else: 
                         replanner_prompt = ChatPromptTemplate.from_template(
