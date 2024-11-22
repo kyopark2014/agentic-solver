@@ -2500,7 +2500,7 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
                 context += info.content+"\n"
             else:
                 context += info.content+"\n\n"
-        print('context: ', context)
+        # print('context: ', context)
                         
         system = (
             "당신은 국어 수능문제를 푸는 일타강사입니다."
@@ -2649,8 +2649,8 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
                 
                 "당신의 목표는 <paragraph> tag의 주어진 문장으로 부터 <question> tag의 주어진 질문에 대한 적절한 답변을 <choice> tag안에서 선택지에서 찾는것입니다."
                 #"<original_plan> tag의 원래 계획과 <past_steps> tag의 완료된 계획을 참조하여 새로운 단계별 계획을 생성합니다. 새로운 계획에는 <plan> tag를 붙여주세요."
-                "<original_plan> tag의 원래 계획을 참조하여 새로운 계획을 수립합니다."
-                "<past_steps> tag의 완료된 단계은 새로운 계획에 포함하지 않습니다."
+                "<original_plan> tag의 원래 계획에서 아직 해야 할 단계로 새로운 계획을 수립합니다."
+                "<past_steps> tag의 완료된 단계와 유사한 단계는 새로운 계획에 포함하지 않습니다."
                 
                 # "당신의 계획을 상황에 맞게 수정하세요."
                 # "계획에 아직 해야 할 단계만 추가하세요. 이전에 완료한 단계는 계획에 포함하지 마세요."
