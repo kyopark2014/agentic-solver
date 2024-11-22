@@ -2110,7 +2110,7 @@ def run_plan_and_exeucute(connectionId, requestId, query):
 
         planner = get_planner()
         response = planner.invoke({"messages": inputs})
-        print('response.content: ', response.content)
+        # print('response.content: ', response.content)
         
         for attempt in range(5):
             chat = get_chat()
@@ -2618,13 +2618,25 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         update_state_message("replanning...", config)
         
         if isKorean(question)==True:
-            replanner_prompt = ChatPromptTemplate.from_template(
-                "For the given objective, come up with a simple step by step plan."
-                "This plan should involve individual tasks, that if executed correctly will yield the correct answer."
-                "Do not add any superfluous steps."
-                "The result of the final step should be the final answer."
-                "Make sure that each step has all the information needed - do not skip steps."
-
+            system = (
+                "당신은 복잡한 문제를 해결하기 위해 step by step plan을 생성하는 AI agent입니다."
+                
+                "단계별 계획의 형식은 아래와 같습니다."
+                "각 단계는 반드시 한줄의 문장으로 AI agent가 수행할 내용을 명확히 나타냅니다."
+                "1. [질문을 해결하기 위한 단계]"
+                "2. [질문을 해결하기 위한 단계]"
+                "..."                
+            )
+            
+            human = (
+                "<paragraph> tag의 주어진 문장을 참조하여 <question> tag의 질문에 대한 적절한 답변을 <choice> tag안에서 선택하가 위한 단계별 계획을 세우세요."
+                "<plan> tag의 original plan과 <past_steps> tag의 완료된 plan을 참조하여 새로운 단계를 생성합니다."
+                "If no more steps are needed, <question> tag의 질문에 답변합니다."
+                "단계별 계획에 <result> tag를 붙여주세요."
+                # "이 계획은 답변을 구하기 위한 단계를 포함합니다. 이를 올바르게 실행하면 정확한 답을 얻을 수 있습니다. 불필요한 단계는 추가하지 마십시오."
+                #"This plan should involve individual tasks, that if executed correctly will yield the correct answer. Do not add any superfluous steps."
+                #"The result of the final step should be the final answer. Make sure that each step has all the information needed - do not skip steps."                
+                
                 #"Your objective was this:"
                 "주어진 문장:"
                 "<paragraph>"
@@ -2643,64 +2655,63 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
                 "{list_choices}"
                 "</list_choices>"
                 
-                "Your original plan was this:"
+                "original plan:"
+                "<plan>"                
                 "{plan}"
+                "</plan>"
 
                 "You have currently done the follow steps:"
+                "<past_steps>"
                 "{past_steps}"
-
-                #"Update your plan accordingly."
+                "</past_steps>"
+                
                 #"If no more steps are needed and you can return to the user, then respond with that."
-                #"Otherwise, fill out the plan."
-                #"Only add steps to the plan that still NEED to be done. Do not return previously done steps as part of the plan."
-                
-                "다음 형식으로 단계별 계획을 다시 세웁니다."
-                "If no more steps are needed and you can return to the user, then respond with that."
-                "Otherwise, fill out the plan with <result> tag."
-                #"이때, 각 단계는 반드시 한줄의 문장으로 AI agent가 수행할 내용을 명확히 나타냅니다."
-                #"1. [질문을 해결하기 위한 단계]"
-                #"2. [질문을 해결하기 위한 단계]"
-                #"..."                
-                
-                #"단계별 계획에 <result> tag를 붙여주세요."
-            )
-        else: 
-                        replanner_prompt = ChatPromptTemplate.from_template(
-                "For the given objective, come up with a simple step by step plan."
-                "This plan should involve individual tasks, that if executed correctly will yield the correct answer."
-                "Do not add any superfluous steps."
-                "The result of the final step should be the final answer."
-                "Make sure that each step has all the information needed - do not skip steps."
+                #"Otherwise, fill out the plan with <result> tag."                
+            )            
+        # else: 
+        #     replanner_prompt = ChatPromptTemplate.from_template(
+        #         "For the given objective, come up with a simple step by step plan."
+        #         "This plan should involve individual tasks, that if executed correctly will yield the correct answer."
+        #         "Do not add any superfluous steps."
+        #         "The result of the final step should be the final answer."
+        #         "Make sure that each step has all the information needed - do not skip steps."
 
-                "Your objective was this:"
-                "<paragraph>"
-                "{paragraph}"
-                "</paragraph>"
+        #         "Your objective was this:"
+        #         "<paragraph>"
+        #         "{paragraph}"
+        #         "</paragraph>"
                 
-                "<question_plus>"
-                "{question_plus}"
-                "</question_plus>"
+        #         "<question_plus>"
+        #         "{question_plus}"
+        #         "</question_plus>"
                 
-                "<question>"
-                "{question}"
-                "</question>"
+        #         "<question>"
+        #         "{question}"
+        #         "</question>"
                 
-                "<list_choices>"
-                "{list_choices}"
-                "</list_choices>"
+        #         "<list_choices>"
+        #         "{list_choices}"
+        #         "</list_choices>"
                 
-                "Your original plan was this:"
-                "{plan}"
+        #         "Your original plan was this:"
+        #         "{plan}"
 
-                "You have currently done the follow steps:"
-                "{past_steps}"
+        #         "You have currently done the follow steps:"
+        #         "{past_steps}"
 
-                "Update your plan accordingly."
-                "If no more steps are needed and you can return to the user, then respond with that."
-                "Otherwise, fill out the plan."
-                "Only add steps to the plan that still NEED to be done. Do not return previously done steps as part of the plan."
-                "단계별 계획에 <result> tag를 붙여주세요."
-            )
+        #         "Update your plan accordingly."
+        #         "If no more steps are needed and you can return to the user, then respond with that."
+        #         "Otherwise, fill out the plan."
+        #         "Only add steps to the plan that still NEED to be done. Do not return previously done steps as part of the plan."
+        #         "단계별 계획에 <result> tag를 붙여주세요."
+        #     )
+        
+        replanner_prompt = ChatPromptTemplate.from_messages(
+            [
+                ("system", system),
+                ("human", human),
+            ]
+        )
         
         chat = get_chat()
         replanner = replanner_prompt | chat
