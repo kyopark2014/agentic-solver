@@ -2735,7 +2735,7 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         print('planning_steps: ', planning_steps)
         
         if len(planning_steps) == 1 and planning_steps[0] == '':
-            return {"response": ""}
+            return {"response": output}
         else:
             return {"plan": planning_steps}
         
