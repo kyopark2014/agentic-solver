@@ -2630,9 +2630,8 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
             
             human = (
                 "<paragraph> tag의 주어진 문장을 참조하여 <question> tag의 질문에 대한 적절한 답변을 <choice> tag안에서 선택하가 위한 단계별 계획을 세우세요."
-                "<plan> tag의 original plan과 <past_steps> tag의 완료된 plan을 참조하여 새로운 단계를 생성합니다."
-                "If no more steps are needed, <question> tag의 질문에 답변합니다."
-                "단계별 계획에 <result> tag를 붙여주세요."
+                "<plan> tag의 original plan과 <past_steps> tag의 완료된 plan을 참조하여 새로운 단계별 계획을 생성합니다. 계획에 <result> tag를 붙여주세요."
+                "더이상 단계별 계획을 하지 않아도 된다면, <question> tag의 질문에 답변합니다."
                 # "이 계획은 답변을 구하기 위한 단계를 포함합니다. 이를 올바르게 실행하면 정확한 답을 얻을 수 있습니다. 불필요한 단계는 추가하지 마십시오."
                 #"This plan should involve individual tasks, that if executed correctly will yield the correct answer. Do not add any superfluous steps."
                 #"The result of the final step should be the final answer. Make sure that each step has all the information needed - do not skip steps."                
@@ -2724,7 +2723,7 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
             "plan": state["plan"],
             "past_steps": state["past_steps"]
         })
-        # print('response.content: ', response.content)
+        print('response.content: ', response.content)
         
         result = response.content
         output = result[result.find('<result>')+8:len(result)-9]
@@ -2771,7 +2770,7 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         print('#### should_end ####')
         # print('state: ', state)
         if "response" in state and state["response"]:
-            print('response: ', state["response"])            
+            print('response: ', state["response"])
             next = "end"
         else:
             print('plan: ', state["plan"])
