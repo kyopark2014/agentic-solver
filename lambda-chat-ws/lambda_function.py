@@ -3417,19 +3417,20 @@ def getResponse(connectionId, jsonBody):
                 problems = question_group["problems"]
                 print('problems: ', json.dumps(problems))
                 
-                for n, problem in enumerate(problems):
-                    print(f'preoblem[{n}]: {problem}')
+                #for n, problem in enumerate(problems):
+                #    print(f'preoblem[{n}]: {problem}')
                 
-                    question = problems[n]["question"]
-                    print('question: ', question)                
-                    question_plus = ""
-                    if "question_plus" in problems[n]:
-                        question_plus = problems[n]["question_plus"]
-                        print('question_plus: ', question_plus)
-                    choices = problems[n]["choices"]
-                    print('choices: ', choices)
+                n = 0
+                question = problems[n]["question"]
+                print('question: ', question)                
+                question_plus = ""
+                if "question_plus" in problems[n]:
+                    question_plus = problems[n]["question_plus"]
+                    print('question_plus: ', question_plus)
+                choices = problems[n]["choices"]
+                print('choices: ', choices)
                     
-                    msg = solve_CSAT_Korean(connectionId, requestId+str(n), paragraph, question, question_plus, choices)
+                msg = solve_CSAT_Korean(connectionId, requestId+str(n), paragraph, question, question_plus, choices)
                     
                 # msg = "uploaded file: "+object
                 
