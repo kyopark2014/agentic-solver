@@ -2543,6 +2543,7 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
             "문제를 풀이할 때 모든 선택지마다 근거를 주어진 문장에서 찾아 설명하세요."
             "선택지의 주요 단어들의 의미를 주어진 문장과 비교해서 꼼꼼히 차이점을 찾습니다."
             "질문에 대한 답을 선택지 중에 한 개만 골라서 대답해야 합니다."
+            # "선택지에서 답을 찾을수 없는 경우에는 0번을 선택합니다."
             "최종 결과의 번호에 <result> tag를 붙여주세요."
             "최종 결과의 신뢰도를 1-5 사이의 숫자로 나타냅니다. 신뢰되는 <confidence> tag를 붙입니다."  
                 
@@ -2615,14 +2616,25 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         # print('output: ', output)                
         # transaction = [HumanMessage(content=task), AIMessage(content=output)]
         
-        transaction = [HumanMessage(content=task), AIMessage(content=response.content)]
+        result = response.content
+        confidence = result[result.find('<confidence>')+12:result.find('</confidence>')]
+        print('confidence: ', confidence)
+        
+        transaction = [HumanMessage(content=task), AIMessage(content=result)]
         # print('transaction: ', transaction)
-           
-        return {
-            "plan": state["plan"],
-            "info": transaction,
-            "past_steps": [task],
-        }
+        
+        if confidence == str(5):
+            return {
+                "plan": [],
+                "info": transaction,
+                "past_steps": [task],
+            }    
+        else:
+            return {
+                "plan": state["plan"],
+                "info": transaction,
+                "past_steps": [task],
+            }
 
     def replan_node(state: State, config):
         print('#### replan ####')
