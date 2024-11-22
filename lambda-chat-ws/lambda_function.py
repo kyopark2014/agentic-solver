@@ -2389,7 +2389,7 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
             system = (
                 "당신은 복잡한 문제를 해결하기 위해 step by step plan을 생성하는 AI agent입니다."
                 
-                "다음 형식으로 단계별 계획을 세웁니다."
+                "다음 형식으로 4단계 이하의 계획을 세웁니다."
                 "각 단계는 반드시 한줄의 문장으로 AI agent가 수행할 내용을 명확히 나타냅니다."
                 "1. [질문을 해결하기 위한 단계]"
                 "2. [질문을 해결하기 위한 단계]"
