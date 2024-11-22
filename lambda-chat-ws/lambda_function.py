@@ -2653,17 +2653,17 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
                 "{plan}"
                 "</original_plan>"
 
-                "당신은 아래까지 진행하였습니다."
+                "안료한 단계는 아래와 같습니다."
                 "<past_steps>"
                 "{past_steps}"
                 "</past_steps>"
                 
                 #"<original_plan> tag의 원 계획과 <past_steps> tag의 완료된 계획을 참조하여 새로운 단계별 계획을 생성합니다. 새로운 계획에는 <plan> tag를 붙여주세요."
                 "당신의 계획을 상황에 맞게 수정하세요."
+                "계획에 아직 해야 할 단계만 추가하세요. 이전에 완료한 단계는 계획에 포함하지 마세요."
                 "수정된 계획에는 <plan> tag를 붙여주세요."
-                "Only add steps to the plan that still NEED to be done. Do not return previously done steps as part of the plan."
+                # "Only add steps to the plan that still NEED to be done. Do not return previously done steps as part of the plan."
                 "만약 더 이상 계획을 세우지 않아도 <question> tag의 주어진 질문에 답변할 있다면, 최종 결과로 <question>에 대한 답변을 <result> tag를 붙여 전달합니다."
-                
                 
                 "수정된 계획의 형식은 아래와 같습니다."
                 "각 단계는 반드시 한줄의 문장으로 AI agent가 수행할 내용을 명확히 나타냅니다."
@@ -2735,20 +2735,22 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         
         print('find: ', result.find('<plan>'))
         
-        if result.find('<plan>')==-1:
+        output = result[result.find('<plan>')+6:len(result)-7]
+        print('plan output: ', output)
+            
+        plans = output.strip().replace('\n\n', '\n')
+        planning_steps = plans.split('\n')
+        print('planning_steps: ', planning_steps)
+        
+        if len(planning_steps) == 1 or len(planning_steps) == 0:
             output = result[result.find('<result>')+8:len(result)-9]
-            print('result output: ', output)
+            print('response: ', output)
             
             return {"response": output}
         else:
-            output = result[result.find('<plan>')+6:len(result)-7]
-            print('plan output: ', output)
-            
-            plans = output.strip().replace('\n\n', '\n')
-            planning_steps = plans.split('\n')
-            print('planning_steps: ', planning_steps)
-            
             return {"plan": planning_steps}
+        
+        
         
         # result = None
         # for attempt in range(5):
