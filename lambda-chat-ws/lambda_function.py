@@ -2387,11 +2387,9 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         
         if isKorean(question)==True:            
             system = (
-                "당신은 복잡한 문제를 해결하기 위해 step by step plan을 생성하는 AI agent입니다."
+                "당신은 복잡한 문제를 해결하기 위해 step by step plan을 생성하는 AI agent입니다."                
                 
-                # "다음 형식으로 단계별 계획을 세웁니다."
-                "다음 형식으로 4단계 이하의 계획을 세웁니다."
-                
+                "문제를 충분히 이해하고, 문제 해결을 위한 계획을 다음 형식으로 4단계 이하의 계획을 세웁니다."                
                 "각 단계는 반드시 한줄의 문장으로 AI agent가 수행할 내용을 명확히 나타냅니다."
                 "1. [질문을 해결하기 위한 단계]"
                 "2. [질문을 해결하기 위한 단계]"
@@ -2539,10 +2537,11 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         #     "</task>"
         # )
         human = (
-            "당신의 목표는 <paragraph> tag의 주어진 문장으로 부터 <question> tag의 주어진 질문에 대한 적절한 답변을 <choice> tag안에서 선택지에서 찾는것입니다."
+            "당신의 목표는 <paragraph> tag의 주어진 문장으로 부터 <question> tag의 주어진 질문에 대한 적절한 답변을 <choice> tag의 선택지에서 찾는것입니다."
             # "여기에서는 복잡한 질문의 답변을 단계적으로 구하기 위해서, <task> tag의 실행 단계를 수행하고 결과와 근거를 명확히 설명합니다." 
             "<previous_result> tag에 있는 이전 단계의 결과를 참조하여, <task> tag의 실행 단계를 수행하고 적절한 답변을 구합니다."
-            "문제를 풀이할 때 모든 선택지마다 근거를 지문에서 찾아 설명하세요."
+            "문제를 풀이할 때 모든 선택지마다 근거를 주어진 문장에서 찾아 설명하세요."
+            ""
             "질문에 대한 답을 선택지 중에 한 개만 골라서 대답해야 합니다."
             "최종 결과의 번호에 <result> tag를 붙여주세요."
             "최종 결과의 신뢰도를 1-5 사이의 숫자로 나타냅니다. 신뢰되는 <confidence> tag를 붙입니다."  
