@@ -2630,8 +2630,8 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
             
             human = (
                 "당신은 <paragraph> tag의 주어진 문장을 참조하여 <question> tag의 질문에 대한 적절한 답변을 <choice> tag안에서 선택하가 위한 단계별 계획을 세우세요."
-                "<plan> tag의 현재 계획과 <past_steps> tag의 완료된 계획을 참조하여 새로운 계획을 생성합니다. 계획에는 <plan> tag를 붙여주세요."
-                "만약 더 이상 계획을 세우지 않아도 <question> tag의 주어진 질문에 답변할 있다면, 최종 결과로 <question>에 대한 답변을 <plan> tag를 붙여 전달합니다."
+                "<plan> tag의 현재 계획과 <past_steps> tag의 완료된 계획을 참조하여 새로운 계획을 생성합니다. 계획에는 <result> tag를 붙여주세요."
+                "만약 더 이상 계획을 세우지 않아도 <question> tag의 주어진 질문에 답변할 있다면, 최종 결과로 <question>에 대한 답변을 <result> tag를 붙여 전달합니다."
                 
                 # "이 계획은 답변을 구하기 위한 단계를 포함합니다. 이를 올바르게 실행하면 정확한 답을 얻을 수 있습니다. 불필요한 단계는 추가하지 마십시오."
                 #"This plan should involve individual tasks, that if executed correctly will yield the correct answer. Do not add any superfluous steps."
