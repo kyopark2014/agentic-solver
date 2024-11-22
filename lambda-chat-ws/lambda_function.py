@@ -2727,7 +2727,9 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         print('response.content: ', response.content)
         result = response.content
         
-        if result.find('</result>'):
+        print('find: ', result.find('<plan>'))
+        
+        if result.find('<plan>')==-1:
             output = result[result.find('<result>')+8:len(result)-9]
             print('result output: ', output)
             
