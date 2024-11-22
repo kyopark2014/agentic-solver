@@ -2743,19 +2743,7 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         planning_steps = plans.split('\n')
         print('planning_steps: ', planning_steps)
         
-        if len(planning_steps) <= 2:
-            output = result[result.find('<result>')+8:result.find('</result>')]
-            print('response: ', output)
-            
-            transaction = [HumanMessage(content=planning_steps[0]), AIMessage(content=output)]
-            print('transaction: ', transaction)
-            
-            return {
-                "info": transaction,
-                "plan": planning_steps
-            }
-        else:
-            return {"plan": planning_steps}
+        return {"plan": planning_steps}
         
         # result = None
         # for attempt in range(5):
@@ -2791,7 +2779,7 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         
         plan = state["plan"]
         print('plan: ', plan)
-        if len(plan)<=2:
+        if len(plan)<=1:
             next = "end"
         else:
             next = "continue"
