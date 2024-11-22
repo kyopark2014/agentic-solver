@@ -2493,28 +2493,50 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
             # "다음의 주어진 문장으로 적절한 답변을 생성하세요."
         )
             
+        # human = (
+        #     "당신은 <paragraph> tag의 주어진 문장을 참조하여 <question> tag의 주어진 질문에 대한 적절한 답변을 <choice> tag안에서 선택하려고 합니다." 
+        #     "이를 위해 <task> tag의 단계를 수행하고 결과를 기술합니다."
+        #     # "최종 결과에 <result> tag를 붙여주세요."
+                
+        #     "주어진 문장:"
+        #     "<paragraph>"
+        #     "{paragraph}"
+        #     "</paragraph>"
+
+        #     "주어진 질문:"
+        #     "<question>"
+        #     "{question}"
+            
+        #     "{question_plus}"        
+        #     "</question>"
+
+        #     "선택지:"
+        #     "<choices>"
+        #     "{list_choices}"
+        #     "</choices>"
+            
+        #     "단계:"
+        #     "<task>"
+        #     "{task}"
+        #     "</task>"
+        # )
         human = (
-            "당신은 <paragraph> tag의 주어진 문장을 참조하여 <question> tag의 주어진 질문에 대한 적절한 답변을 <choice> tag안에서 선택하려고 합니다." 
+            "당신은 <paragraph> tag의 주어진 문장을 참조하여 <task> tag의 단계를 수행하고 결과를 기술합니다." 
             "이를 위해 <task> tag의 단계를 수행하고 결과를 기술합니다."
-            "최종 결과에 <result> tag를 붙여주세요."
+            "결과에 <result> tag를 붙여주세요."
                 
             "주어진 문장:"
             "<paragraph>"
             "{paragraph}"
-            "</paragraph>"
-
-            "주어진 질문:"
-            "<question>"
-            "{question}"
             
-            "{question_plus}"        
-            "</question>"
+            "{question_plus}"                    
+            "</paragraph>"
 
             "선택지:"
             "<choices>"
             "{list_choices}"
             "</choices>"
-            
+
             "단계:"
             "<task>"
             "{task}"
@@ -2532,9 +2554,15 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         
         chain = prompt | chat
                         
+        # response = chain.invoke({
+        #     "paragraph": paragraph,
+        #     "question": question,
+        #     "question_plus": question_plus,
+        #     "list_choices": list_choices,
+        #     "task": task
+        # })
         response = chain.invoke({
             "paragraph": paragraph,
-            "question": question,
             "question_plus": question_plus,
             "list_choices": list_choices,
             "task": task
@@ -2543,9 +2571,10 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         
         result = response.content
         output = result[result.find('<result>')+8:len(result)-9]
-        print('output: ', output)
-                
+        print('output: ', output)                
         transaction = [HumanMessage(content=task), AIMessage(content=output)]
+        
+        #transaction = [HumanMessage(content=task), AIMessage(content=result)]
         print('transaction: ', transaction)
            
         return {
