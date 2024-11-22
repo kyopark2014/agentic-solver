@@ -2383,7 +2383,7 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
                 "당신은 복잡한 문제를 해결하기 위해 step by step plan을 생성하는 AI agent입니다."
                 
                 "다음 형식으로 단계별 계획을 세웁니다."
-                "각 단계는 반드시 하나의 문장으로 AI agent가 수행할 내용을 명확히 나타냅니다."
+                "각 단계는 반드시 한줄의 문장으로 AI agent가 수행할 내용을 명확히 나타냅니다."
                 "1. [질문을 해결하기 위한 단계]"
                 "2. [질문을 해결하기 위한 단계]"
                 "..."                
@@ -2391,6 +2391,7 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
             
             human = (
                 "<paragraph> tag의 주어진 문장을 참조하여 <question> tag의 질문에 대한 적절한 답변을 <choice> tag안에서 선택하가 위한 단계별 계획을 세우세요."
+                "단계별 계획에 <result> tag를 붙여주세요."
                 # "이 계획은 답변을 구하기 위한 단계를 포함합니다. 이를 올바르게 실행하면 정확한 답을 얻을 수 있습니다. 불필요한 단계는 추가하지 마십시오."
                 #"This plan should involve individual tasks, that if executed correctly will yield the correct answer. Do not add any superfluous steps."
                 #"The result of the final step should be the final answer. Make sure that each step has all the information needed - do not skip steps."                
@@ -2403,11 +2404,9 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
                 "질문:"
                 "<question>"
                 "{question}"
+                                
+                "{question_plus}"                
                 "</question>"
-
-                "<question_plus>"
-                "{question_plus}"
-                "</question_plus>"
 
                 "선택지:"
                 "<choices>"
@@ -2420,6 +2419,7 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
                 "For the given objective, come up with a simple step by step plan."
                 "This plan should involve individual tasks, that if executed correctly will yield the correct answer. Do not add any superfluous steps."
                 "The result of the final step should be the final answer. Make sure that each step has all the information needed - do not skip steps."
+                "Provide the final answer with <result> tag."
             )
             
         planner_prompt = ChatPromptTemplate.from_messages(
@@ -2440,11 +2440,13 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
             "list_choices": list_choices
         })
         print('response.content: ', response.content)
+        result = response.content
+        output = result[result.find('<result>')+8:len(result)-9]
         
         for attempt in range(5):
             chat = get_chat()
             structured_llm = chat.with_structured_output(Plan, include_raw=True)
-            info = structured_llm.invoke(response.content)
+            info = structured_llm.invoke(output)
             print(f'attempt: {attempt}, info: {info}')
             
             if not info['parsed'] == None:
@@ -2485,6 +2487,7 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         human = (
             "당신은 <paragraph> tag의 주어진 문장을 참조하여 <question> tag의 주어진 질문에 대한 적절한 답변을 <choice> tag안에서 선택하려고 합니다." 
             "이를 위해 <task> tag의 단계를 수행하고 결과를 기술합니다."
+            "최종 결과에 <result> tag를 붙여주세요."
                 
             "주어진 문장:"
             "<paragraph>"
@@ -2526,8 +2529,12 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
             "task": task
         })
         print('response.content: ', response.content)
+        
+        result = response.content
+        output = result[result.find('<result>')+8:len(result)-9]
+        print('output: ', output)
                 
-        transaction = [HumanMessage(content=task), AIMessage(content=response.content)]
+        transaction = [HumanMessage(content=task), AIMessage(content=output)]
         print('transaction: ', transaction)
            
         return {
@@ -2563,46 +2570,85 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         
         update_state_message("replanning...", config)
         
-        replanner_prompt = ChatPromptTemplate.from_template(
-            "For the given objective, come up with a simple step by step plan."
-            "This plan should involve individual tasks, that if executed correctly will yield the correct answer."
-            "Do not add any superfluous steps."
-            "The result of the final step should be the final answer."
-            "Make sure that each step has all the information needed - do not skip steps."
+        if isKorean(question)==True:
+            replanner_prompt = ChatPromptTemplate.from_template(
+                "For the given objective, come up with a simple step by step plan."
+                "This plan should involve individual tasks, that if executed correctly will yield the correct answer."
+                "Do not add any superfluous steps."
+                "The result of the final step should be the final answer."
+                "Make sure that each step has all the information needed - do not skip steps."
 
-            "Your objective was this:"
-            "<paragraph>"
-            "{paragraph}"
-            "</paragraph>"
-            
-            "<question_plus>"
-            "{question_plus}"
-            "</question_plus>"
-            
-            "<question>"
-            "{question}"
-            "</question>"
-            
-            "<list_choices>"
-            "{list_choices}"
-            "</list_choices>"
-            
-            "Your original plan was this:"
-            "{plan}"
+                "Your objective was this:"
+                "<paragraph>"
+                "{paragraph}"
+                "</paragraph>"
+                
+                "<question_plus>"
+                "{question_plus}"
+                "</question_plus>"
+                
+                "<question>"
+                "{question}"
+                "</question>"
+                
+                "<list_choices>"
+                "{list_choices}"
+                "</list_choices>"
+                
+                "Your original plan was this:"
+                "{plan}"
 
-            "You have currently done the follow steps:"
-            "{past_steps}"
+                "You have currently done the follow steps:"
+                "{past_steps}"
 
-            "Update your plan accordingly."
-            "If no more steps are needed and you can return to the user, then respond with that."
-            "Otherwise, fill out the plan."
-            "Only add steps to the plan that still NEED to be done. Do not return previously done steps as part of the plan."
-        )
+                "Update your plan accordingly."
+                "If no more steps are needed and you can return to the user, then respond with that."
+                "Otherwise, fill out the plan."
+                "Only add steps to the plan that still NEED to be done. Do not return previously done steps as part of the plan."
+                "단계별 계획에 <result> tag를 붙여주세요."
+            )
+        else: 
+                        replanner_prompt = ChatPromptTemplate.from_template(
+                "For the given objective, come up with a simple step by step plan."
+                "This plan should involve individual tasks, that if executed correctly will yield the correct answer."
+                "Do not add any superfluous steps."
+                "The result of the final step should be the final answer."
+                "Make sure that each step has all the information needed - do not skip steps."
+
+                "Your objective was this:"
+                "<paragraph>"
+                "{paragraph}"
+                "</paragraph>"
+                
+                "<question_plus>"
+                "{question_plus}"
+                "</question_plus>"
+                
+                "<question>"
+                "{question}"
+                "</question>"
+                
+                "<list_choices>"
+                "{list_choices}"
+                "</list_choices>"
+                
+                "Your original plan was this:"
+                "{plan}"
+
+                "You have currently done the follow steps:"
+                "{past_steps}"
+
+                "Update your plan accordingly."
+                "If no more steps are needed and you can return to the user, then respond with that."
+                "Otherwise, fill out the plan."
+                "Only add steps to the plan that still NEED to be done. Do not return previously done steps as part of the plan."
+                "단계별 계획에 <result> tag를 붙여주세요."
+            )
         
         chat = get_chat()
         replanner = replanner_prompt | chat
         
-        output = replanner.invoke({
+        response = replanner.invoke({
             "paragraph": state["paragraph"],
             "question_plus": state["question_plus"],
             "question": state["question"],
@@ -2610,13 +2656,17 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
             "plan": state["plan"],
             "past_steps": state["past_steps"]
         })
-        print('replanner output: ', output.content)
+        print('replanner output: ', response.content)
+        
+        result = response.content
+        output = result[result.find('<result>')+8:len(result)-9]
+        print('replanner output: ', output)
         
         result = None
         for attempt in range(5):
             chat = get_chat()
             structured_llm = chat.with_structured_output(Act, include_raw=True)    
-            info = structured_llm.invoke(output.content)
+            info = structured_llm.invoke(output)
             print(f'attempt: {attempt}, info: {info}')
             
             if not info['parsed'] == None:
