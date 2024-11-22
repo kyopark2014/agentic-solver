@@ -2554,6 +2554,7 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         print('paragraph: ', state["paragraph"])
         print('question: ', state["question"])
         print('question_plus: ', state["question_plus"])
+        print('past_steps: ', state["past_steps"])
                 
         list_choices = ""
         for i, choice in enumerate(choices):
@@ -3185,7 +3186,7 @@ def getResponse(connectionId, jsonBody):
                 for i, problem in enumerate(problems):
                     print(f'preoblem[{i}]: {problem}')
                 
-                n = 2
+                n = 1
                 question = problems[n]["question"]
                 print('question: ', question)                
                 question_plus = ""
