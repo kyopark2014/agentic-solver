@@ -2747,7 +2747,10 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
             output = result[result.find('<result>')+8:result.find('</result>')]
             print('response: ', output)
             
-            return {"response": output}
+            transaction = [HumanMessage(content=planning_steps[0]), AIMessage(content=output)]
+            print('transaction: ', transaction)
+            
+            return {"info": transaction}
         else:
             return {"plan": planning_steps}
         
