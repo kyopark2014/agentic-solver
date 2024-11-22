@@ -2725,18 +2725,21 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
             "past_steps": state["past_steps"]
         })
         print('response.content: ', response.content)
-        
         result = response.content
-        output = result[result.find('<result>')+8:len(result)-9]
-        print('replanner output: ', output)
         
-        plan = output.strip().replace('\n\n', '\n')
-        planning_steps = plan.split('\n')
-        print('planning_steps: ', planning_steps)
-        
-        if len(planning_steps) == 1 and planning_steps[0] == '':
+        if result.find('</result>'):
+            output = result[result.find('<result>')+8:len(result)-9]
+            print('replanner output: ', output)
+            
             return {"response": output}
         else:
+            output = result[result.find('<plan>')+8:len(plan)-7]
+            print('replanner output: ', output)
+            
+            plan = output.strip().replace('\n\n', '\n')
+            planning_steps = plan.split('\n')
+            print('planning_steps: ', planning_steps)
+            
             return {"plan": planning_steps}
         
         # result = None
