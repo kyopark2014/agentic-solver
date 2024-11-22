@@ -2760,14 +2760,14 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         print('find: ', result.find('<plan>'))
         
         if result.find('<plan>') == -1:
-            result = response.content
-            output = result[result.find('<result>')+8:len(result)-9]
+            #result = response.content
+            #output = result[result.find('<result>')+8:len(result)-9]
         
-            transaction = [HumanMessage(content=response.content), AIMessage(content=output)]
-            print('transaction: ', transaction)
+            #transaction = [HumanMessage(content=response.content), AIMessage(content=output)]
+            #print('transaction: ', transaction)
             
             return {
-                "info": transaction,
+                #"info": transaction,
                 "plan": []
             }
         else:
