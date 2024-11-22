@@ -2661,7 +2661,9 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
                 #"<original_plan> tag의 원 계획과 <past_steps> tag의 완료된 계획을 참조하여 새로운 단계별 계획을 생성합니다. 새로운 계획에는 <plan> tag를 붙여주세요."
                 "당신의 계획을 상황에 맞게 수정하세요."
                 "수정된 계획에는 <plan> tag를 붙여주세요."
+                "Only add steps to the plan that still NEED to be done. Do not return previously done steps as part of the plan."
                 "만약 더 이상 계획을 세우지 않아도 <question> tag의 주어진 질문에 답변할 있다면, 최종 결과로 <question>에 대한 답변을 <result> tag를 붙여 전달합니다."
+                
                 
                 "수정된 계획의 형식은 아래와 같습니다."
                 "각 단계는 반드시 한줄의 문장으로 AI agent가 수행할 내용을 명확히 나타냅니다."
