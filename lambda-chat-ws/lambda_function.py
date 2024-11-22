@@ -2729,15 +2729,15 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         
         if result.find('</result>'):
             output = result[result.find('<result>')+8:len(result)-9]
-            print('replanner output: ', output)
+            print('result output: ', output)
             
             return {"response": output}
         else:
-            output = result[result.find('<plan>')+6:len(result)-7]
-            print('replanner output: ', output)
+            output = result[result.find('<plan>')+6:len(result)-6]
+            print('plan output: ', output)
             
-            plan = output.strip().replace('\n\n', '\n')
-            planning_steps = plan.split('\n')
+            plans = output.strip().replace('\n\n', '\n')
+            planning_steps = plans.split('\n')
             print('planning_steps: ', planning_steps)
             
             return {"plan": planning_steps}
