@@ -2543,8 +2543,8 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
             # "여기에서는 복잡한 질문의 답변을 단계적으로 구하기 위해서, <task> tag의 실행 단계를 수행하고 결과와 근거를 명확히 설명합니다." 
             "<previous_result> tag에 있는 이전 단계의 결과를 참조하여, <task> tag의 실행 단계를 수행하고 적절한 답변을 구합니다."
             "문제를 풀이할 때 모든 선택지마다 근거를 지문에서 찾아 설명하세요."
-            "질문에 대한 답을 선택지 중에 한 개의 골라서 대답해야 합니다."
-            "결과는 <result> tag를 붙여주세요."     
+            "질문에 대한 답을 선택지 중에 한 개만 골라서 대답해야 합니다."
+            "최종 결과의 번호에 <result> tag를 붙여주세요."
             "최종 결과의 신뢰도를 1-5 사이의 숫자로 나타냅니다. 신뢰되는 <confidence> tag를 붙입니다."  
                 
             #, <task> tag의 실행 단계를 수행하고 결과와 근거를 명확히 설명합니다." 
@@ -2857,9 +2857,9 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
             
             human = (
                 "<context> tag에 있는 검토 결과를 활용하여, <paragraph> tag의 주어진 문장으로 부터 <question> tag의 주어진 질문에 대한 적절한 답변을 <choice> tag안에서 선택하려고 합니다."
-                "질문에 대한 답을 선택지 중에 한 개의 골라서 대답해야 합니다."
+                "질문에 대한 답을 선택지 중에 한 개만 골라서 대답해야 합니다."
                 "답변의 이유를 풀어서 명확하게 설명합니다."
-                "결과는 <result> tag를 붙여주세요."     
+                "최종 결과의 번호에 <result> tag를 붙여주세요."  
                 "최종 결과의 신뢰도를 1-5 사이의 숫자로 나타냅니다. 신뢰되는 <confidence> tag를 붙입니다."  
                 
                 "이전 단계에서 검토한 결과:"
