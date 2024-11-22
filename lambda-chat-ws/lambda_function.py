@@ -2446,7 +2446,7 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
             "question_plus": question_plus,
             "list_choices": list_choices
         })
-        print('response.content: ', response.content)
+        # print('response.content: ', response.content)
         result = response.content
         output = result[result.find('<result>')+8:len(result)-9]
         
@@ -2602,7 +2602,7 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
 
     def replan_node(state: State, config):
         print('#### replan ####')
-        print('state of replan node: ', state)
+        # print('state of replan node: ', state)
         
         # print('paragraph: ', state["paragraph"])
         # print('question: ', state["question"])
@@ -2769,11 +2769,16 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         
     def should_end(state: State) -> Literal["continue", "end"]:
         print('#### should_end ####')
-        print('state: ', state)
+        # print('state: ', state)
         if "response" in state and state["response"]:
-            return "end"
+            print('response: ', state["response"])            
+            next = "end"
         else:
-            return "continue"    
+            print('plan: ', state["plan"])
+            next = "continue"
+        print(f"should_end response: {next}")
+        
+        return next
         
     def final_answer(state: State) -> str:
         print('#### final_answer ####')
