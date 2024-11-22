@@ -2389,7 +2389,9 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
             system = (
                 "당신은 복잡한 문제를 해결하기 위해 step by step plan을 생성하는 AI agent입니다."
                 
+                # "다음 형식으로 단계별 계획을 세웁니다."
                 "다음 형식으로 4단계 이하의 계획을 세웁니다."
+                
                 "각 단계는 반드시 한줄의 문장으로 AI agent가 수행할 내용을 명확히 나타냅니다."
                 "1. [질문을 해결하기 위한 단계]"
                 "2. [질문을 해결하기 위한 단계]"
@@ -2541,6 +2543,7 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
             # "여기에서는 복잡한 질문의 답변을 단계적으로 구하기 위해서, <task> tag의 실행 단계를 수행하고 결과와 근거를 명확히 설명합니다." 
             "<previous_result> tag에 있는 이전 단계의 결과를 참조하여, <task> tag의 실행 단계를 수행하고 적절한 답변을 구합니다."
             "최종 답변에는 실행 단계의 결과와 근거를 명확히 포함합니다."
+            "최종 답변의 신뢰도를 1-5 사이의 숫자로 나타냅니다. 신뢰되는 <confidence> tag를 붙입니다."
             #, <task> tag의 실행 단계를 수행하고 결과와 근거를 명확히 설명합니다." 
             
             
@@ -2687,7 +2690,6 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
                 "수정된 계획에는 <plan> tag를 붙여주세요."
                 # "Only add steps to the plan that still NEED to be done. Do not return previously done steps as part of the plan."
                 "만약 더 이상 계획을 세우지 않아도 <question> tag의 주어진 질문에 답변할 있다면, 최종 결과로 <question>에 대한 답변을 <result> tag를 붙여 전달합니다."
-                
                 
                 "수정된 계획의 형식은 아래와 같습니다."
                 "각 단계는 반드시 한줄의 문장으로 AI agent가 수행할 내용을 명확히 나타냅니다."
