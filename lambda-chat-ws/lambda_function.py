@@ -2562,16 +2562,16 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         print('#### replan ####')
         print('state of replan node: ', state)
         
-        print('paragraph: ', state["paragraph"])
-        print('question: ', state["question"])
-        print('question_plus: ', state["question_plus"])
-        print('past_steps: ', state["past_steps"])
+        # print('paragraph: ', state["paragraph"])
+        # print('question: ', state["question"])
+        # print('question_plus: ', state["question_plus"])
+        # print('past_steps: ', state["past_steps"])
                 
         list_choices = ""
         choices = state["choices"]
         for i, choice in enumerate(choices):
             list_choices += f"({i+1}) {choice}\n"
-        print('list_choices: ', list_choices)    
+        # print('list_choices: ', list_choices)    
         
         update_state_message("replanning...", config)
         
@@ -2661,7 +2661,7 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
             "plan": state["plan"],
             "past_steps": state["past_steps"]
         })
-        print('replanner output: ', response.content)
+        # print('response.content: ', response.content)
         
         result = response.content
         output = result[result.find('<result>')+8:len(result)-9]
@@ -3288,7 +3288,7 @@ def getResponse(connectionId, jsonBody):
                 for i, problem in enumerate(problems):
                     print(f'preoblem[{i}]: {problem}')
                 
-                n = 0
+                n = 1
                 question = problems[n]["question"]
                 print('question: ', question)                
                 question_plus = ""
