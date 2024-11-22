@@ -3429,7 +3429,7 @@ def getResponse(connectionId, jsonBody):
                 #for n, problem in enumerate(problems):
                 #    print(f'preoblem[{n}]: {problem}')
                 
-                n = 1
+                n = 2
                 question = problems[n]["question"]
                 print('question: ', question)                
                 question_plus = ""
@@ -3439,7 +3439,7 @@ def getResponse(connectionId, jsonBody):
                 choices = problems[n]["choices"]
                 print('choices: ', choices)
                     
-                msg = solve_CSAT_Korean(connectionId, requestId+str(n), paragraph, question, question_plus, choices)
+                msg = solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plus, choices)
                     
                 # msg = "uploaded file: "+object
                 
