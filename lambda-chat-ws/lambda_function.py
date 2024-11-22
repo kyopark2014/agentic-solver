@@ -2750,11 +2750,12 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
             transaction = [HumanMessage(content=planning_steps[0]), AIMessage(content=output)]
             print('transaction: ', transaction)
             
-            return {"info": transaction}
+            return {
+                "info": transaction,
+                "plan": planning_steps
+            }
         else:
             return {"plan": planning_steps}
-        
-        
         
         # result = None
         # for attempt in range(5):
@@ -2787,11 +2788,12 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
     def should_end(state: State) -> Literal["continue", "end"]:
         print('#### should_end ####')
         # print('state: ', state)
-        if "response" in state and state["response"]:
-            print('response: ', state["response"])
+        
+        plan = state["plan"]
+        print('plan: ', state["plan"])
+        if len(plan)<=1:
             next = "end"
         else:
-            print('plan: ', state["plan"])
             next = "continue"
         print(f"should_end response: {next}")
         
