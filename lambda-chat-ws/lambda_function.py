@@ -2523,7 +2523,7 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         human = (
             "당신은 <paragraph> tag의 주어진 문장을 참조하여 <task> tag의 단계를 수행하고 결과를 기술합니다." 
             "이를 위해 <task> tag의 단계를 수행하고 결과를 기술합니다."
-            "결과에 <result> tag를 붙여주세요."
+            # "결과에 <result> tag를 붙여주세요."
                 
             "주어진 문장:"
             "<paragraph>"
@@ -2569,13 +2569,13 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         })
         print('response.content: ', response.content)
         
-        result = response.content
-        #output = result[result.find('<result>')+8:len(result)-9]
-        #print('output: ', output)                
-        #transaction = [HumanMessage(content=task), AIMessage(content=output)]
+        # result = response.content
+        # output = result[result.find('<result>')+8:len(result)-9]
+        # print('output: ', output)                
+        # transaction = [HumanMessage(content=task), AIMessage(content=output)]
         
-        transaction = [HumanMessage(content=task), AIMessage(content=result)]
-        print('transaction: ', transaction)
+        transaction = [HumanMessage(content=task), AIMessage(content=response.content)]
+        # print('transaction: ', transaction)
            
         return {
             "plan": state["plan"],
@@ -2643,10 +2643,19 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
                 "You have currently done the follow steps:"
                 "{past_steps}"
 
-                "Update your plan accordingly."
+                #"Update your plan accordingly."
+                #"If no more steps are needed and you can return to the user, then respond with that."
+                #"Otherwise, fill out the plan."
+                #"Only add steps to the plan that still NEED to be done. Do not return previously done steps as part of the plan."
+                
+                "다음 형식으로 단계별 계획을 다시 세웁니다."
                 "If no more steps are needed and you can return to the user, then respond with that."
                 "Otherwise, fill out the plan."
-                "Only add steps to the plan that still NEED to be done. Do not return previously done steps as part of the plan."
+                "이때, 각 단계는 반드시 한줄의 문장으로 AI agent가 수행할 내용을 명확히 나타냅니다."
+                "1. [질문을 해결하기 위한 단계]"
+                "2. [질문을 해결하기 위한 단계]"
+                "..."                
+                
                 "단계별 계획에 <result> tag를 붙여주세요."
             )
         else: 
@@ -2725,7 +2734,11 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
                     "info": [result.action.response]
                 }
             else:  # "parsed":"Act(action=Plan(steps=
-                return {"plan": result.action.steps}
+                # return {"plan": result.action.steps}
+                plan = output.strip().replace('\n\n', '\n')
+                planning_steps = plan.split('\n')
+                print('planning_steps: ', planning_steps)
+                return {"plan": planning_steps}
         
     def should_end(state: State) -> Literal["continue", "end"]:
         print('#### should_end ####')
