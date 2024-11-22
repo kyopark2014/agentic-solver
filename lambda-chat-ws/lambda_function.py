@@ -2733,7 +2733,7 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
             
             return {"response": output}
         else:
-            output = result[result.find('<plan>')+8:len(plan)-7]
+            output = result[result.find('<plan>')+8:len(result)-7]
             print('replanner output: ', output)
             
             plan = output.strip().replace('\n\n', '\n')
