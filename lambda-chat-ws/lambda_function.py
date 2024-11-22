@@ -2591,7 +2591,7 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         """Action to perform as a json format"""
         action: Union[Response, Plan] = Field(
             description="Action to perform. If you want to respond to user, use Response. "
-            "If you need to further use tools to get the answer, use Plan."
+            "If you need to further steps to get the answer, use Plan."
         )
 
     def replan_node(state: State, config):
@@ -2601,7 +2601,7 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         # print('paragraph: ', state["paragraph"])
         # print('question: ', state["question"])
         # print('question_plus: ', state["question_plus"])
-        # print('past_steps: ', state["past_steps"])
+        print('past_steps: ', state["past_steps"])
                 
         list_choices = ""
         choices = state["choices"]
@@ -2716,7 +2716,7 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         result = None
         for attempt in range(5):
             chat = get_chat()
-            structured_llm = chat.with_structured_output(Act, include_raw=True)    
+            structured_llm = chat.with_structured_output(Act, include_raw=True)
             info = structured_llm.invoke(output)
             print(f'attempt: {attempt}, info: {info}')
             
@@ -2729,6 +2729,7 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
             return {"response": "답을 찾지 못하였습니다. 다시 시도해주세요."}
         else:
             if isinstance(result.action, Response):  # "parsed":"Act(action=Response(response="
+                print('response: ', result.action.response)
                 return {
                     "response": result.action.response,
                     "info": [result.action.response]
