@@ -2648,22 +2648,6 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
                 #"The result of the final step should be the final answer. Make sure that each step has all the information needed - do not skip steps."                
                 
                 "당신의 목표는 <paragraph> tag의 주어진 문장으로 부터 <question> tag의 주어진 질문에 대한 적절한 답변을 <choice> tag안에서 선택지에서 찾는것입니다."
-                #"<original_plan> tag의 원래 계획과 <past_steps> tag의 완료된 계획을 참조하여 새로운 단계별 계획을 생성합니다. 새로운 계획에는 <plan> tag를 붙여주세요."
-                "<original_plan> tag의 원래 계획에서 아직 해야 할 단계로 새로운 계획을 수립합니다."
-                "<past_steps> tag의 완료된 단계와 유사한 단계는 새로운 계획에 포함하지 않습니다."
-                
-                # "당신의 계획을 상황에 맞게 수정하세요."
-                # "계획에 아직 해야 할 단계만 추가하세요. 이전에 완료한 단계는 계획에 포함하지 마세요."
-                #"If no more steps are needed and you can return to the user, then respond with that."
-                "새로운 계획에는 <plan> tag를 붙여주세요."
-                # "Only add steps to the plan that still NEED to be done. Do not return previously done steps as part of the plan."
-                "만약 더 이상 계획을 세우지 않아도 <question> tag의 주어진 질문에 답변할 있다면, 최종 결과로 <question>에 대한 답변을 <result> tag를 붙여 전달합니다."
-                
-                "새로운 계획의 형식은 아래와 같습니다."
-                "각 단계는 반드시 한줄의 문장으로 AI agent가 수행할 내용을 명확히 나타냅니다."
-                "1. [질문을 해결하기 위한 단계]"
-                "2. [질문을 해결하기 위한 단계]"
-                "..."         
                 
                 "주어진 문장:"
                 "<paragraph>"
@@ -2683,7 +2667,7 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
                 "</list_choices>"
                 
                 "당신의 원래 계획은 아래와 같습니다." 
-                "<original_plan>"
+                "<original_plan>"                
                 "{plan}"
                 "</original_plan>"
 
@@ -2692,7 +2676,24 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
                 "{past_steps}"
                 "</past_steps>"
                 
+                #"<original_plan> tag의 원 계획과 <past_steps> tag의 완료된 계획을 참조하여 새로운 단계별 계획을 생성합니다. 새로운 계획에는 <plan> tag를 붙여주세요."
+                "당신은 <original_plan> tag의 원래 계획을 상황에 맞게 수정하세요."
+                "계획에 아직 해야 할 단계만 추가하세요. 이전에 완료한 단계는 계획에 포함하지 마세요."
                 
+                #"<original_plan> tag의 원래 계획에서 아직 해야 할 단계로 새로운 계획을 수립합니다."
+                #"<past_steps> tag의 완료된 단계와 유사한 단계는 새로운 계획에 포함하지 않습니다."
+                
+                #"If no more steps are needed and you can return to the user, then respond with that."
+                "수정된 계획에는 <plan> tag를 붙여주세요."
+                # "Only add steps to the plan that still NEED to be done. Do not return previously done steps as part of the plan."
+                "만약 더 이상 계획을 세우지 않아도 <question> tag의 주어진 질문에 답변할 있다면, 최종 결과로 <question>에 대한 답변을 <result> tag를 붙여 전달합니다."
+                
+                
+                "수정된 계획의 형식은 아래와 같습니다."
+                "각 단계는 반드시 한줄의 문장으로 AI agent가 수행할 내용을 명확히 나타냅니다."
+                "1. [질문을 해결하기 위한 단계]"
+                "2. [질문을 해결하기 위한 단계]"
+                "..."         
                 
                 #"If no more steps are needed and you can return to the user, then respond with that."
                 #"Otherwise, fill out the plan with <result> tag."                
@@ -3416,19 +3417,20 @@ def getResponse(connectionId, jsonBody):
                 problems = question_group["problems"]
                 print('problems: ', json.dumps(problems))
                 
-                for n, problem in enumerate(problems):
-                    print(f'preoblem[{n}]: {problem}')
+                for i, problem in enumerate(problems):
+                    print(f'preoblem[{i}]: {problem}')
                 
-                    question = problems[n]["question"]
-                    print('question: ', question)                
-                    question_plus = ""
-                    if "question_plus" in problems[n]:
-                        question_plus = problems[n]["question_plus"]
-                        print('question_plus: ', question_plus)
-                    choices = problems[n]["choices"]
-                    print('choices: ', choices)
-                    
-                    msg = solve_CSAT_Korean(connectionId, requestId+n, paragraph, question, question_plus, choices)
+                n = 1
+                question = problems[n]["question"]
+                print('question: ', question)                
+                question_plus = ""
+                if "question_plus" in problems[n]:
+                    question_plus = problems[n]["question_plus"]
+                    print('question_plus: ', question_plus)
+                choices = problems[n]["choices"]
+                print('choices: ', choices)
+                
+                msg = solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plus, choices)
                     
                 # msg = "uploaded file: "+object
                 
