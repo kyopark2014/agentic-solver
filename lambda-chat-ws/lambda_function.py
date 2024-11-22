@@ -2444,22 +2444,29 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         result = response.content
         output = result[result.find('<result>')+8:len(result)-9]
         
-        for attempt in range(5):
-            chat = get_chat()
-            structured_llm = chat.with_structured_output(Plan, include_raw=True)
-            info = structured_llm.invoke(output)
-            print(f'attempt: {attempt}, info: {info}')
-            
-            if not info['parsed'] == None:
-                parsed_info = info['parsed']
-                # print('parsed_info: ', parsed_info)        
-                print('steps: ', parsed_info.steps)                
-                return {
-                    "plan": parsed_info.steps
-                }
+        plan = output.strip().replace('\n\n', '\n')
+        planning_steps = plan.split('\n')
+        print('planning_steps: ', planning_steps)
         
-        print('parsing_error: ', info['parsing_error'])
-        return {"plan": []}
+        # for attempt in range(5):
+        #     chat = get_chat()
+        #     structured_llm = chat.with_structured_output(Plan, include_raw=True)
+        #     info = structured_llm.invoke(output)
+        #     print(f'attempt: {attempt}, info: {info}')
+            
+        #     if not info['parsed'] == None:
+        #         parsed_info = info['parsed']
+        #         # print('parsed_info: ', parsed_info)        
+        #         print('steps: ', parsed_info.steps)                
+        #         return {
+        #             "plan": parsed_info.steps
+        #         }
+        
+        # print('parsing_error: ', info['parsing_error'])
+        # return {"plan": []}
+        
+        return {"plan": planning_steps}
+        
 
     def execute_node(state: State, config):
         print("###### execute ######")
