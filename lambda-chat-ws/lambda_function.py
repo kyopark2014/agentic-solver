@@ -2527,7 +2527,7 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         #     "</task>"
         # )
         human = (
-            "당신은 <paragraph> tag의 주어진 문장을 참조하여 <task> tag의 단계를 수행하고 결과를 기술합니다." 
+            "당신은 <paragraph> tag의 주어진 문장으로 부터 <task> tag의 단계를 수행하고 결과를 기술합니다." 
             "이를 위해 <task> tag의 단계를 수행하고 결과를 기술합니다."
             # "결과에 <result> tag를 붙여주세요."
                 
@@ -2629,7 +2629,7 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
                 #"This plan should involve individual tasks, that if executed correctly will yield the correct answer. Do not add any superfluous steps."
                 #"The result of the final step should be the final answer. Make sure that each step has all the information needed - do not skip steps."                
                 
-                "당신의 목표는 <paragraph> tag의 주어진 문장을 참조하여 <question> tag의 주어진 질문에 대한 적절한 답변을 <choice> tag안에서 선택지에서 찾는것입니다."
+                "당신의 목표는 <paragraph> tag의 주어진 문장으로 부터 <question> tag의 주어진 질문에 대한 적절한 답변을 <choice> tag안에서 선택지에서 찾는것입니다."
                 
                 "주어진 문장:"
                 "<paragraph>"
@@ -2792,9 +2792,11 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         
         # get final answer
         context = state['info']
-        # print('context: ', context)        
-        question = state['question']
-        print('question: ', question)
+        # print('context: ', context)
+                        
+        print('paragraph: ', state["paragraph"])
+        print('question: ', state["question"])
+        print('question_plus: ', state["question_plus"])
         
         list_choices = ""
         choices = state["choices"]
@@ -2814,7 +2816,7 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
             )
             
             human = (
-                "당신은 <paragraph> tag의 주어진 문장을 참조하여 <question> tag의 주어진 질문에 대한 적절한 답변을 <choice> tag안에서 선택하려고 합니다."                 
+                "<context> tag에 있는 검토 결과를 활용하여, <paragraph> tag의 주어진 문장으로 부터 <question> tag의 주어진 질문에 대한 적절한 답변을 <choice> tag안에서 선택하려고 합니다."
                 "질문에 대한 답을 선택지 중에 한 개의 골라서 대답해야 합니다."
                 "답변의 이유를 풀어서 명확하게 설명합니다."
                 "결과는 <result> tag를 붙여주세요."       
