@@ -2390,15 +2390,17 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
             )
             
             human = (
-                "<paragraph> tag의 내용을 참조하여 <question> tag의 질문에 대한 적절한 답변을 <choice> tag안에서 선택하가 위한 단계별 계획을 세우세요."
+                "<paragraph> tag의 주어진 문장을 참조하여 <question> tag의 질문에 대한 적절한 답변을 <choice> tag안에서 선택하가 위한 단계별 계획을 세우세요."
                 # "이 계획은 답변을 구하기 위한 단계를 포함합니다. 이를 올바르게 실행하면 정확한 답을 얻을 수 있습니다. 불필요한 단계는 추가하지 마십시오."
                 #"This plan should involve individual tasks, that if executed correctly will yield the correct answer. Do not add any superfluous steps."
                 #"The result of the final step should be the final answer. Make sure that each step has all the information needed - do not skip steps."                
                 
+                "주어진 문장:"
                 "<paragraph>"
                 "{paragraph}"
                 "</paragraph>"
 
+                "질문:"
                 "<question>"
                 "{question}"
                 "</question>"
@@ -2407,9 +2409,10 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
                 "{question_plus}"
                 "</question_plus>"
 
+                "선택지:"
                 "<choices>"
                 "{list_choices}"
-                "</choices>"                
+                "</choices>"
             )
                             
         else:
@@ -2460,28 +2463,72 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         plan = state["plan"]
         print('plan: ', plan) 
         
+        list_choices = ""
+        for i, choice in enumerate(choices):
+            list_choices += f"({i+1}) {choice}\n"
+        # print('list_choices: ', list_choices)    
+                
         update_state_message("executing...", config)
         
-        plan_str = "\n".join(f"{i+1}. {step}" for i, step in enumerate(plan))
+        # plan_str = "\n".join(f"{i+1}. {step}" for i, step in enumerate(plan))
         # print("plan_str: ", plan_str)
         
         task = plan[0]
-        print('task: ', task)
-                
-        inputs = [HumanMessage(content=task)]
-        output = tool_app.invoke({"messages": inputs}, config)
-        print('executor output: ', output)
-        
-        transaction = []
-        if "messages" in output:
-            human = output["messages"][0]
-            print('human: ', human.content)
-
-            ai = output["messages"][-1]
-            print('ai: ', ai.content)
+        print('task: ', task)                        
+        #print('paragraph: ', state["paragraph"])
+                        
+        system = (
+            "당신은 국어 수능문제를 푸는 일타강사입니다."
+            # "다음의 주어진 문장으로 적절한 답변을 생성하세요."
+        )
             
-            transaction = [HumanMessage(content=human.content), AIMessage(content=ai.content)]
-            # print('transaction: ', transaction)
+        human = (
+            "당신은 <paragraph> tag의 주어진 문장을 참조하여 <question> tag의 주어진 질문에 대한 적절한 답변을 <choice> tag안에서 선택하려고 합니다." 
+            "이를 위해 <task> tag의 단계를 수행하고 결과를 기술합니다."
+                
+            "주어진 문장:"
+            "<paragraph>"
+            "{paragraph}"
+            "</paragraph>"
+
+            "주어진 질문:"
+            "<question>"
+            "{question}"
+            "</question>"
+
+            "선택지:"
+            "<choices>"
+            "{list_choices}"
+            "</choices>"
+            
+            "단계:"
+            "<task>"
+            "{task}"
+            "</task>"
+        )
+                                        
+        prompt = ChatPromptTemplate.from_messages(
+            [
+                ("system", system),
+                ("human", human),
+            ]
+        )
+        
+        chat = get_chat()   
+        
+        chain = prompt | chat
+                        
+        response = chain.invoke({
+            "paragraph": paragraph,
+            "question": question,
+            "question_plus": question_plus,
+            "list_choices": list_choices,
+            "task": task
+        })
+        print('response.content: ', response.content)
+                
+        transaction = [HumanMessage(content=task), AIMessage(content=response.content)]
+        print('transaction: ', transaction)
            
         return {
             "plan": state["plan"],
