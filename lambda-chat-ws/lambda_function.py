@@ -2497,6 +2497,8 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
             "주어진 질문:"
             "<question>"
             "{question}"
+            
+            "{question_plus}"        
             "</question>"
 
             "선택지:"
@@ -2705,14 +2707,37 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         
         if isKorean(question)==True:
             system = (
-                "Assistant의 이름은 서연이고, 질문에 대해 친절하게 답변하는 도우미입니다."
-                "다음의 <context> tag안의 참고자료를 이용하여 질문에 대한 답변합니다."
-                "답변의 이유를 풀어서 명확하게 설명합니다."
-                "결과는 <result> tag를 붙여주세요."
+                "당신은 국어 수능문제를 푸는 일타강사입니다."
+                "다음의 <context> tag안에는 이전 단계에서 검토한 결과가 있습니다."
                 
+                "이전 단계에서 검토한 결과:"
                 "<context>"
                 "{context}"
-                "</context>"
+                "</context>"                            
+            )
+            
+            human = (
+                "당신은 <paragraph> tag의 주어진 문장을 참조하여 <question> tag의 주어진 질문에 대한 적절한 답변을 <choice> tag안에서 선택하려고 합니다."                 
+                "질문에 대한 답을 선택지 중에 한 개의 골라서 대답해야 합니다."
+                "답변의 이유를 풀어서 명확하게 설명합니다."
+                "결과는 <result> tag를 붙여주세요."       
+                                
+                "주어진 문장:"
+                "<paragraph>"
+                "{paragraph}"
+                "</paragraph>"
+
+                "질문:"
+                "<question>"
+                "{question}"
+                                
+                "{question_plus}"                
+                "</question>"
+
+                "선택지:"
+                "<choices>"
+                "{list_choices}"
+                "</choices>"       
             )
         else: 
             system = (
@@ -2725,9 +2750,25 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
                 "<context>"
                 "{context}"
                 "</context>"
-            )
-    
-        human = "{question}"
+                
+                "주어진 문장:"
+                "<paragraph>"
+                "{paragraph}"
+                "</paragraph>"
+
+                "질문:"
+                "<question>"
+                "{question}"
+                                
+                "{question_plus}"                
+                "</question>"
+
+                "선택지:"
+                "<choices>"
+                "{list_choices}"
+                "</choices>"                
+            )    
+            human = "{question}"
         
         prompt = ChatPromptTemplate.from_messages([("system", system), ("human", human)])
         # print('prompt: ', prompt)
