@@ -2713,33 +2713,42 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         output = result[result.find('<result>')+8:len(result)-9]
         print('replanner output: ', output)
         
-        result = None
-        for attempt in range(5):
-            chat = get_chat()
-            structured_llm = chat.with_structured_output(Act, include_raw=True)
-            info = structured_llm.invoke(output)
-            print(f'attempt: {attempt}, info: {info}')
-            
-            if not info['parsed'] == None:
-                result = info['parsed']
-                print('replan result: ', result)
-                break
-                    
-        if result == None:
-            return {"response": "답을 찾지 못하였습니다. 다시 시도해주세요."}
+        plan = output.strip().replace('\n\n', '\n')
+        planning_steps = plan.split('\n')
+        print('planning_steps: ', planning_steps)
+        
+        if len(planning_steps) == 1 and planning_steps[0] == '':
+            return {"response": ""}
         else:
-            if isinstance(result.action, Response):  # "parsed":"Act(action=Response(response="
-                print('response: ', result.action.response)
-                return {
-                    "response": result.action.response,
-                    "info": [result.action.response]
-                }
-            else:  # "parsed":"Act(action=Plan(steps=
-                # return {"plan": result.action.steps}
-                plan = output.strip().replace('\n\n', '\n')
-                planning_steps = plan.split('\n')
-                print('planning_steps: ', planning_steps)
-                return {"plan": planning_steps}
+            return {"plan": planning_steps}
+        
+        # result = None
+        # for attempt in range(5):
+        #     chat = get_chat()
+        #     structured_llm = chat.with_structured_output(Act, include_raw=True)
+        #     info = structured_llm.invoke(output)
+        #     print(f'attempt: {attempt}, info: {info}')
+            
+        #     if not info['parsed'] == None:
+        #         result = info['parsed']
+        #         print('replan result: ', result)
+        #         break
+                    
+        # if result == None:
+        #     return {"response": "답을 찾지 못하였습니다. 다시 시도해주세요."}
+        # else:
+        #     if isinstance(result.action, Response):  # "parsed":"Act(action=Response(response="
+        #         print('response: ', result.action.response)
+        #         return {
+        #             "response": result.action.response,
+        #             "info": [result.action.response]
+        #         }
+        #     else:  # "parsed":"Act(action=Plan(steps=
+        #         # return {"plan": result.action.steps}
+        #         plan = output.strip().replace('\n\n', '\n')
+        #         planning_steps = plan.split('\n')
+        #         print('planning_steps: ', planning_steps)
+        #         return {"plan": planning_steps}
         
     def should_end(state: State) -> Literal["continue", "end"]:
         print('#### should_end ####')
