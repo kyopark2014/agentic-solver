@@ -2743,7 +2743,7 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         planning_steps = plans.split('\n')
         print('planning_steps: ', planning_steps)
         
-        if len(planning_steps) == 1 or len(planning_steps) == 0:
+        if len(planning_steps) <= 2:
             output = result[result.find('<result>')+8:result.find('</result>')]
             print('response: ', output)
             
@@ -2791,7 +2791,7 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         
         planning_steps = state["planning_steps"]
         print('planning_steps: ', planning_steps)
-        if len(planning_steps)<=1:
+        if len(planning_steps)<=2:
             next = "end"
         else:
             next = "continue"
