@@ -2,6 +2,10 @@
 
 여기에서는 agentic workflow를 이용하여 복잡한 문제를 해결하는 방법에 대해 설명합니다. 여기에서 사용하는 agentic workflow은 plan and exeuction입니다.
 
+## 복잡한 문제로 수능 국어를 선택한 이유
+
+수학능력시험의 국어는 한국어에 대한 이해를 측정하기 위해 [지문과 선택지](https://github.com/NomaDamas/KICE_slayer_AI_Korean/blob/master/data/2023_11_KICE.json)가 주어집니다. 따라서, LLM의 언어 및 분석 능력을 판단하기에 매우 좋은 예제입니다. 또한, [수능 문제의 경우에 정답이 알려져있고 상세한 해설서](https://m.blog.naver.com/awesome-2030/222931282476)도 있습니다. 
+
 ## Plan and Exeuction pattern
 
 plan and exeuction pattern을 이용하면 복잡한 문제를 step by step으로 처리할 수 있습니다.
