@@ -2629,15 +2629,12 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
             )
             
             human = (
-                "당신은 <paragraph> tag의 주어진 문장을 참조하여 <question> tag의 질문에 대한 적절한 답변을 <choice> tag안에서 선택하가 위한 단계별 계획을 세우세요."
-                "<original_plan> tag의 현재 계획과 <past_steps> tag의 완료된 계획을 참조하여 새로운 단계별 계획을 생성합니다. 새로운 계획에는 <plan> tag를 붙여주세요."
-                "만약 더 이상 계획을 세우지 않아도 <question> tag의 주어진 질문에 답변할 있다면, 최종 결과로 <question>에 대한 답변을 <result> tag를 붙여 전달합니다."
-                
                 # "이 계획은 답변을 구하기 위한 단계를 포함합니다. 이를 올바르게 실행하면 정확한 답을 얻을 수 있습니다. 불필요한 단계는 추가하지 마십시오."
                 #"This plan should involve individual tasks, that if executed correctly will yield the correct answer. Do not add any superfluous steps."
                 #"The result of the final step should be the final answer. Make sure that each step has all the information needed - do not skip steps."                
                 
-                #"Your objective was this:"
+                "당신의 목표는 <paragraph> tag의 주어진 문장을 참조하여 <question> tag의 주어진 질문에 대한 적절한 답변을 <choice> tag안에서 선택지에서 찾는것입니다."
+                
                 "주어진 문장:"
                 "<paragraph>"
                 "{paragraph}"
@@ -2655,15 +2652,20 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
                 "{list_choices}"
                 "</list_choices>"
                 
-                "현재 계획:"
+                "당신의 원래 계획은 아래와 같습니다." 
                 "<original_plan>"                
                 "{plan}"
                 "</original_plan>"
 
-                "진행된 계획:"
+                "당신은 아래까지 진행하였습니다."
                 "<past_steps>"
                 "{past_steps}"
                 "</past_steps>"
+                
+                #"<original_plan> tag의 원 계획과 <past_steps> tag의 완료된 계획을 참조하여 새로운 단계별 계획을 생성합니다. 새로운 계획에는 <plan> tag를 붙여주세요."
+                "당신의 계획을 상황에 맞게 수정하세요."
+                "수정된 계획에는 <plan> tag를 붙여주세요."
+                "만약 더 이상 계획을 세우지 않아도 <question> tag의 주어진 질문에 답변할 있다면, 최종 결과로 <question>에 대한 답변을 <result> tag를 붙여 전달합니다."
                 
                 #"If no more steps are needed and you can return to the user, then respond with that."
                 #"Otherwise, fill out the plan with <result> tag."                
@@ -2735,7 +2737,7 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
             
             return {"response": output}
         else:
-            output = result[result.find('<plan>')+6:len(result)-6]
+            output = result[result.find('<plan>')+6:len(result)-7]
             print('plan output: ', output)
             
             plans = output.strip().replace('\n\n', '\n')
