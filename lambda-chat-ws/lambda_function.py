@@ -2623,18 +2623,11 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         transaction = [HumanMessage(content=task), AIMessage(content=result)]
         # print('transaction: ', transaction)
         
-        if confidence == str(5):
-            return {
-                "plan": [],
-                "info": transaction,
-                "past_steps": [task],
-            }    
-        else:
-            return {
-                "plan": state["plan"],
-                "info": transaction,
-                "past_steps": [task],
-            }
+        return {
+            "plan": state["plan"],
+            "info": transaction,
+            "past_steps": [task],
+        }
 
     def replan_node(state: State, config):
         print('#### replan ####')
@@ -3436,7 +3429,7 @@ def getResponse(connectionId, jsonBody):
                 #for n, problem in enumerate(problems):
                 #    print(f'preoblem[{n}]: {problem}')
                 
-                n = 0
+                n = 1
                 question = problems[n]["question"]
                 print('question: ', question)                
                 question_plus = ""
