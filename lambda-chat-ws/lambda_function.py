@@ -3429,7 +3429,7 @@ def getResponse(connectionId, jsonBody):
                     choices = problems[n]["choices"]
                     print('choices: ', choices)
                     
-                    msg = solve_CSAT_Korean(connectionId, requestId+n, paragraph, question, question_plus, choices)
+                    msg = solve_CSAT_Korean(connectionId, requestId+str(n), paragraph, question, question_plus, choices)
                     
                 # msg = "uploaded file: "+object
                 
