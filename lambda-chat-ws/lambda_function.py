@@ -2736,14 +2736,26 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         
         print('find: ', result.find('<plan>'))
         
-        output = result[result.find('<plan>')+6:result.find('</plan>')]
-        print('plan output: ', output)
-            
-        plans = output.strip().replace('\n\n', '\n')
-        planning_steps = plans.split('\n')
-        print('planning_steps: ', planning_steps)
+        if result.find('<plan>') == -1:
+            result = response.content
+            output = result[result.find('<result>')+8:len(result)-9]
         
-        return {"plan": planning_steps}
+            transaction = [HumanMessage(content=response.content), AIMessage(content=output)]
+            print('transaction: ', transaction)
+            
+            return {
+                "info": transaction,
+                "plan": []
+            }
+        else:
+            output = result[result.find('<plan>')+6:result.find('</plan>')]
+            print('plan output: ', output)
+            
+            plans = output.strip().replace('\n\n', '\n')
+            planning_steps = plans.split('\n')
+            print('planning_steps: ', planning_steps)
+        
+            return {"plan": planning_steps}
         
         # result = None
         # for attempt in range(5):
