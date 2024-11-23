@@ -2990,7 +2990,11 @@ def solve_problems_using_parallel_processing(connectionId, requestId, json_data)
         process.start()
             
     for parent_conn in parent_connections:
-        idx, message, score = parent_conn.recv()
+        result = parent_conn.recv()
+        
+        idx = result["idx"]
+        message = result["message"]
+        score = result["score"]
         print(f"idx:{idx} --> socre: {score}, message:{message}")
 
         if message is not None:
@@ -3064,7 +3068,11 @@ def solve_problems_in_paragraph(connectionId, requestId, paragraph, problems, id
     print('earn_score: ', earn_score)
     print('message: ', message)
     
-    return idx, message, earn_score
+    return {
+        "idx:": idx, 
+        "message": message, 
+        "score": earn_score
+    }
 
 def getResponse(connectionId, jsonBody):
     userId  = jsonBody['user_id']
@@ -3359,7 +3367,10 @@ def getResponse(connectionId, jsonBody):
                         problems = question_group["problems"]
                         print('problems: ', json.dumps(problems))
                         
-                        idx, message, score = solve_problems_in_paragraph(connectionId, requestId, paragraph, problems, idx, total_idx)
+                        result = solve_problems_in_paragraph(connectionId, requestId, paragraph, problems, idx, total_idx)
+                        idx = result["idx"]
+                        message = result["message"]
+                        score = result["score"]
                         print('idx: ', idx)
                         print('message: ', message)
                         print('score: ', score)
