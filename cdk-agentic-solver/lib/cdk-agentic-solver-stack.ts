@@ -63,11 +63,11 @@ const claude3_5_sonnet = [
     "model_type": "claude3.5",
     "model_id": "anthropic.claude-3-5-sonnet-20240620-v1:0"  
   },
-  {
+ /* {
     "bedrock_region": "ap-south-1", // Mumbai
     "model_type": "claude3.5",
-    "model_id": "anthropic.claude-3-5-sonnet-20240620-v1:0"  
-  },
+    "model_id": "apac.anthropic.claude-3-5-sonnet-20240620-v1:0"  
+  }, */
   {
     "bedrock_region": "ap-southeast-2", // Sydney
     "model_type": "claude3.5",
