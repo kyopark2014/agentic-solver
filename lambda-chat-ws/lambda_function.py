@@ -3449,7 +3449,7 @@ def getResponse(connectionId, jsonBody):
                     choices = problems[n]["choices"]
                     print('choices: ', choices)
                         
-                    result = solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plus, choices)
+                    result = solve_CSAT_Korean(connectionId, requestId+str(n), paragraph, question, question_plus, choices)
                     
                     answer  = result[result.find('<result>')+8:result.find('</result>')]
                 
