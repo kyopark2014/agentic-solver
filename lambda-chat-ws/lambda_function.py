@@ -3344,8 +3344,8 @@ def getResponse(connectionId, jsonBody):
                 #for i, data in enumerate(json_data):
                 #    print(f'index: {i}: {json.dumps(data)}')
                     
-                multi_region_mode = "disable"
-                if not multi_region_mode=="enable":
+                multi_region_mode = "enable"
+                if multi_region_mode=="disable":
                     idx = 0
                     msg = ""
                     earn_score = total_score = 0
