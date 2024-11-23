@@ -3415,6 +3415,7 @@ def getResponse(connectionId, jsonBody):
                 json_data = json.loads(contents)
                     
                 msg = ""  
+                total_score = 0
                 for question_group in json_data:
                     problems = question_group["problems"]
                     for problem in problems:
