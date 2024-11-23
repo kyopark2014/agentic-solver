@@ -3427,7 +3427,7 @@ def getResponse(connectionId, jsonBody):
                 #for i, data in enumerate(json_data):
                 #    print(f'index: {i}: {json.dumps(data)}')
                     
-                idx = 2
+                idx = 3
                 question_group = json_data[idx]
                 paragraph = question_group["paragraph"]
                 print('paragraph: ', paragraph)
@@ -3454,9 +3454,9 @@ def getResponse(connectionId, jsonBody):
                         
                     result = solve_CSAT_Korean(connectionId, requestId+str(n), paragraph, question, question_plus, choices)
                     
-                    output  = result[result.find('<result>')+8:result.find('</result>')]
+                    output = result[result.find('<result>')+8:result.find('</result>')]
                     
-                    if answer == output:
+                    if answer == int(output):
                         msg += f"{question} {output} (OK)\n"
                         total_score += int(score)
                     else:
