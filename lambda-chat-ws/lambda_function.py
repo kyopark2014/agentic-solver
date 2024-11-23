@@ -3025,14 +3025,32 @@ def solve_problems_in_paragraph(connectionId, requestId, paragraph, problems, id
         score = problem["score"]
             
         result = solve_CSAT_Korean(connectionId, requestId+str(idx)+str(n), paragraph, question, question_plus, choices, idx+n)
+        print('result: ', result)
         
         output = result[result.find('<result>')+8:result.find('</result>')]
+        print('output: ', output)
+        
+        class Selection(BaseModel):
+            select: int = Field(description="선택지의 번호")
+        
+        chat = get_chat()
+        structured_llm = chat.with_structured_output(Selection, include_raw=True)
+        
+        info = structured_llm.invoke(output)
+        selected_answer = 0
+        for attempt in range(5):
+            print(f'attempt: {attempt}, info: {info}')
+            if not info['parsed'] == None:
+                parsed_info = info['parsed']
+                print('parsed_info: ', parsed_info)
+                selected_answer = parsed_info.select                    
+                print('slected_answer: ', selected_answer)
 
-        if answer == int(output):
-            message += f"{question} {output} (OK)\n"
+        if answer == selected_answer:
+            message += f"{question} {selected_answer} (OK)\n"
             earn_score += int(score)
         else:
-            message += f"{question} {output} (NOK, {answer}, -{score})\n"
+            message += f"{question} {selected_answer} (NOK, {answer}, -{score})\n"
     
     return idx, message, earn_score
 
@@ -3319,7 +3337,7 @@ def getResponse(connectionId, jsonBody):
                 earn_score = total_score = 0
                 total_idx = len(json_data)+1
                                     
-                for idx in range(2):
+                for idx in range(1):
                     question_group = json_data[idx]
                     paragraph = question_group["paragraph"]
                     print('paragraph: ', paragraph)
