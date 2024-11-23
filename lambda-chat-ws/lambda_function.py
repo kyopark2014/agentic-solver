@@ -2348,7 +2348,48 @@ def run_plan_and_exeucute(connectionId, requestId, query):
 ####################### LangGraph #######################
 # Plan and Execute
 #########################################################
-def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plus, choices):
+def get_llm(select):
+    if multi_region == 'enable':
+        profile = multi_region_models[select]
+    else:
+        profile = LLM_for_chat[select]
+    
+    bedrock_region =  profile['bedrock_region']
+    modelId = profile['model_id']
+    maxOutputTokens = 4096
+    print(f'LLM: {select}, bedrock_region: {bedrock_region}, modelId: {modelId}')
+                        
+    # bedrock   
+    boto3_bedrock = boto3.client(
+        service_name='bedrock-runtime',
+        region_name=bedrock_region,
+        config=Config(
+            retries = {
+                'max_attempts': 30
+            }
+        )
+    )
+    parameters = {
+        "max_tokens":maxOutputTokens,     
+        "temperature":0.1,
+        "top_k":250,
+        "top_p":0.9,
+        "stop_sequences": [HUMAN_PROMPT]
+    }
+
+    chat = ChatBedrock(   # new chat model
+        model_id=modelId,
+        client=boto3_bedrock, 
+        model_kwargs=parameters,
+    )    
+    
+    select = select + 1
+    if select == length_of_models:
+        select = 0
+    
+    return chat, select
+
+def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plus, choices, selection):    
     class State(TypedDict):
         plan: list[str]
         past_steps: Annotated[List[Tuple], operator.add]
@@ -2358,6 +2399,7 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         question_plus: str
         choices: list[str]
         answer: str
+        select: int
 
     def plan_node(state: State, config):
         print("###### plan ######")
@@ -2411,7 +2453,7 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
                 ("human", human),
             ]
         )
-        chat = get_chat()           
+        chat, select = get_llm(state["select"])
         planner = planner_prompt | chat
         response = planner.invoke({
             "paragraph": paragraph,
@@ -2427,7 +2469,10 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         planning_steps = plan.split('\n')
         print('planning_steps: ', planning_steps)
         
-        return {"plan": planning_steps}
+        return {
+            "plan": planning_steps,
+            "select": select
+        }
 
     def execute_node(state: State, config):
         print("###### execute ######")
@@ -2498,7 +2543,7 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
                 ("human", human),
             ]
         )
-        chat = get_chat()   
+        chat, select = get_llm(state["select"])
         chain = prompt | chat                        
         response = chain.invoke({
             "paragraph": state["paragraph"],
@@ -2528,7 +2573,8 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
             "plan": plan,
             "info": transaction,
             "past_steps": [task],
-            "answer": answer
+            "answer": answer,
+            "select": select
         }
 
     def replan_node(state: State, config):
@@ -2597,7 +2643,7 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
                 ("human", human),
             ]
         )        
-        chat = get_chat()
+        chat, select = get_llm(state["select"])
         replanner = replanner_prompt | chat        
         response = replanner.invoke({
             "paragraph": state["paragraph"],
@@ -2613,7 +2659,7 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         print('find: ', result.find('<plan>'))
         
         if result.find('<plan>') == -1:
-            return {"plan": []}
+            return {"plan":[], "select":select}
         else:
             output = result[result.find('<plan>')+6:result.find('</plan>')]
             print('plan output: ', output)
@@ -2622,7 +2668,7 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
             planning_steps = plans.split('\n')
             print('planning_steps: ', planning_steps)
         
-            return {"plan": planning_steps}
+            return {"plan": planning_steps, "select":select}
                 
     def should_end(state: State) -> Literal["continue", "end"]:
         print('#### should_end ####')
@@ -2698,7 +2744,7 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
             "</choices>"       
         )
         prompt = ChatPromptTemplate.from_messages([("system", system), ("human", human)])
-        chat = get_chat()
+        chat, select = get_llm(state["select"])
         chain = prompt | chat        
         response = chain.invoke(
             {
@@ -2711,7 +2757,7 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         )
         result = response.content
 
-        return {"answer": result}  
+        return {"answer":result, "select":select}  
 
     def buildPlanAndExecute():
         workflow = StateGraph(State)
@@ -2735,15 +2781,21 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
 
         return workflow.compile()
 
+    # run graph
+    if selection>=length_of_models:
+        selection-=length_of_models
+    print('selection: ', selection)
+    
     app = buildPlanAndExecute()    
     
     isTyping(connectionId, requestId, "")
-        
+            
     inputs = {
         "question": question,
         "question_plus": question_plus,
         "paragraph": paragraph,
-        "choices": choices
+        "choices": choices,
+        "select": selection
     }
     config = {
         "recursion_limit": 50,
@@ -3186,36 +3238,36 @@ def getResponse(connectionId, jsonBody):
                 #for i, data in enumerate(json_data):
                 #    print(f'index: {i}: {json.dumps(data)}')
                     
-                idx = 9
+                idx = 0
                 question_group = json_data[idx]
                 paragraph = question_group["paragraph"]
                 print('paragraph: ', paragraph)
                 
                 problems = question_group["problems"]
                 print('problems: ', json.dumps(problems))
-                
-                #for n, problem in enumerate(problems):
-                #    print(f'preoblem[{n}]: {problem}')
-                
+                                
                 total_idx = len(jsonBody)+1
                 msg = f"{idx+1}/{total_idx}\n"
                 earn_score = total_score = 0
-                for n in range(len(problems)):
-                    question = problems[n]["question"]
-                    print('question: ', question)                
+                
+                for n, problem in enumerate(problems):
+                    print(f'--> problem[{n}]: {problem}')
+                
+                    question = problem["question"]
+                    print('question: ', question)
                     question_plus = ""
-                    if "question_plus" in problems[n]:
-                        question_plus = problems[n]["question_plus"]
+                    if "question_plus" in problem:
+                        question_plus = problem["question_plus"]
                         print('question_plus: ', question_plus)
-                    choices = problems[n]["choices"]
+                    choices = problem["choices"]
                     print('choices: ', choices)
-                    answer = problems[n]["answer"]
-                    score = problems[n]["score"]
+                    answer = problem["answer"]
+                    score = problem["score"]
                         
-                    result = solve_CSAT_Korean(connectionId, requestId+str(idx)+str(n), paragraph, question, question_plus, choices)
+                    result = solve_CSAT_Korean(connectionId, requestId+str(idx)+str(n), paragraph, question, question_plus, choices, idx+n)
                     
                     output = result[result.find('<result>')+8:result.find('</result>')]
-                    
+
                     if answer == int(output):
                         msg += f"{question} {output} (OK)\n"
                         earn_score += int(score)
