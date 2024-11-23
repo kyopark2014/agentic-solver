@@ -2293,7 +2293,7 @@ def run_plan_and_exeucute(connectionId, requestId, query):
                 }
             )
             result = response.content
-            output = result[result.find('<result>')+8:len(result)-9] # remove <result> tag
+            output = result[result.find('<result>')+8:result.find('</result>')] # remove <result> tag
             print('output: ', output)
             
         except Exception:
