@@ -2960,7 +2960,7 @@ def check_grammer(chat, text):
     
     return msg
 
-def solve_problem_using_parallel_processing(connectionId, requestId, json_data):
+def solve_problems_using_parallel_processing(connectionId, requestId, json_data):
     processes = []
     parent_connections = []
     
@@ -3318,28 +3318,29 @@ def getResponse(connectionId, jsonBody):
                 msg = ""
                 earn_score = total_score = 0
                 total_idx = len(json_data)+1
-                
-                question_group = json_data[idx]
-                paragraph = question_group["paragraph"]
-                print('paragraph: ', paragraph)
-                
-                problems = question_group["problems"]
-                print('problems: ', json.dumps(problems))
-                
-                idx, message, score = solve_problems_in_paragraph(connectionId, requestId, paragraph, problems, idx, total_idx)
-                print('idx: ', idx)
-                print('message: ', message)
-                print('score: ', score)
-                
-                msg += message
-                earn_score += score
-                
-                for problem in problems:
-                    total_score += int(problem["score"])
+                                    
+                for idx in range(2):
+                    question_group = json_data[idx]
+                    paragraph = question_group["paragraph"]
+                    print('paragraph: ', paragraph)
                     
-                # solve_problem_using_parallel_processing
-                
-                msg += "\n\n"
+                    problems = question_group["problems"]
+                    print('problems: ', json.dumps(problems))
+                    
+                    idx, message, score = solve_problems_in_paragraph(connectionId, requestId, paragraph, problems, idx, total_idx)
+                    print('idx: ', idx)
+                    print('message: ', message)
+                    print('score: ', score)
+                    
+                    msg += message
+                    earn_score += score
+
+                    for problem in problems:
+                        total_score += int(problem["score"])
+                    
+                    msg += "\n\n"
+                    
+                # msg, earn_score = solve_problems_using_parallel_processing(connectionId, requestId, json_data)
                     
                 print('score: ', earn_score)
                 msg += f"\n점수: {earn_score}점 / {total_score}점\n"
