@@ -2623,8 +2623,13 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         transaction = [HumanMessage(content=task), AIMessage(content=result)]
         # print('transaction: ', transaction)
         
+        if confidence == "5":
+            plan = []
+        else:
+            plan = state["plan"]
+        
         return {
-            "plan": state["plan"],
+            "plan": plan,
             "info": transaction,
             "past_steps": [task],
         }
@@ -2645,6 +2650,9 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         # print('list_choices: ', list_choices)    
         
         update_state_message("replanning...", config)
+        
+        if len(state["plan"])==0:
+            return {"plan": []}
         
         if isKorean(question)==True:
             system = (
