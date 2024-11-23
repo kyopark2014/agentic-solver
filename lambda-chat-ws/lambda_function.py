@@ -3420,7 +3420,7 @@ def getResponse(connectionId, jsonBody):
                 #for i, data in enumerate(json_data):
                 #    print(f'index: {i}: {json.dumps(data)}')
                     
-                idx = 5
+                idx = 6
                 question_group = json_data[idx]
                 paragraph = question_group["paragraph"]
                 print('paragraph: ', paragraph)
