@@ -2965,13 +2965,14 @@ def solve_problems_using_parallel_processing(connectionId, requestId, json_data)
     parent_connections = []
     
     total_idx = len(json_data)+1
+    print('total_idx: ', total_idx)
     
     messages = []
     earn_score = 0
     for idx in range(total_idx):
         messages.append("")
         
-    for idx, question_group in enumerate(json_data[0:2]):
+    for idx, question_group in enumerate(json_data[:2]):
         parent_conn, child_conn = Pipe()
         parent_connections.append(parent_conn)
         
@@ -2983,7 +2984,7 @@ def solve_problems_using_parallel_processing(connectionId, requestId, json_data)
         problems = question_group["problems"]
         print('problems: ', json.dumps(problems))
         
-        process = Process(target=solve_problems_in_paragraph, args=(child_conn, connectionId, requestId, paragraph, problems, idx, total_idx))
+        process = Process(target=solve_problems, args=(child_conn, connectionId, requestId, paragraph, problems, idx, total_idx))
         processes.append(process)
         
     for process in processes:
@@ -3013,6 +3014,68 @@ def solve_problems_using_parallel_processing(connectionId, requestId, json_data)
     print('final_msg: ', final_msg)
     
     return final_msg, earn_score
+
+def solve_problems(conn, connectionId, requestId, paragraph, problems, idx, total_idx):
+    message = f"{idx+1}/{total_idx}\n"
+    
+    earn_score = 0    
+    for n, problem in enumerate(problems):
+        print(f'--> problem[{n}]: {problem}')
+    
+        question = problem["question"]
+        print('question: ', question)
+        question_plus = ""
+        if "question_plus" in problem:
+            question_plus = problem["question_plus"]
+            print('question_plus: ', question_plus)
+        choices = problem["choices"]
+        print('choices: ', choices)
+        answer = problem["answer"]
+        score = problem["score"]
+            
+        result = solve_CSAT_Korean(connectionId, requestId+str(idx)+str(n), paragraph, question, question_plus, choices, idx+n)
+        print('result: ', result)
+        
+        output = result[result.find('<result>')+8:result.find('</result>')]
+        print('output: ', output)
+        
+        if output.isnumeric():
+            selected_answer = int(output)
+            print('slected_answer: ', selected_answer)
+        else:
+            class Selection(BaseModel):
+                select: int = Field(description="선택지의 번호")
+            
+            chat = get_chat()
+            structured_llm = chat.with_structured_output(Selection, include_raw=True)
+            
+            info = structured_llm.invoke(output)
+            selected_answer = 0
+            for attempt in range(5):
+                #print(f'attempt: {attempt}, info: {info}')
+                if not info['parsed'] == None:
+                    parsed_info = info['parsed']
+                    #print('parsed_info: ', parsed_info)
+                    selected_answer = parsed_info.select                    
+                    print('slected_answer: ', selected_answer)
+                    break
+
+        if answer == selected_answer:
+            message += f"{question} {selected_answer} (OK)\n"
+            earn_score += int(score)
+        else:
+            message += f"{question} {selected_answer} (NOK, {answer}, -{score})\n"
+            
+    print('earn_score: ', earn_score)
+    print('message: ', message)
+    
+    conn.send({
+        "idx:": idx, 
+        "message": message, 
+        "score": earn_score
+    })
+    
+    conn.close()
 
 def solve_problems_in_paragraph(connectionId, requestId, paragraph, problems, idx, total_idx):
     message = f"{idx+1}/{total_idx}\n"
