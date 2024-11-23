@@ -3413,16 +3413,19 @@ def getResponse(connectionId, jsonBody):
                 # print('contents: ', contents)
                 
                 json_data = json.loads(contents)
-                #for i, data in enumerate(json_data):
-                #    print(f'index: {i}: {json.dumps(data)}')
                     
+                msg = ""  
+                for question_group in json_data:
+                    problems = question_group["problems"]
+                    for problem in problems:
+                        total_score += int(problem["score"])
+                print('total_score: ', total_score)
+                        
                 multi_region_mode = "enable"
                 if multi_region_mode=="disable":
-                    idx = 0
-                    msg = ""
-                    earn_score = total_score = 0
                     total_idx = len(json_data)+1
-                                        
+                    earn_score = 0
+                    
                     for idx in range(2):
                         question_group = json_data[idx]
                         paragraph = question_group["paragraph"]
@@ -3441,9 +3444,6 @@ def getResponse(connectionId, jsonBody):
                         
                         msg += message
                         earn_score += score
-
-                        for problem in problems:
-                            total_score += int(problem["score"])
                         
                         msg += "\n\n"
                 else:                    
