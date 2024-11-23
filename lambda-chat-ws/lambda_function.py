@@ -2991,9 +2991,10 @@ def solve_problems_using_parallel_processing(connectionId, requestId, json_data)
             
     for parent_conn in parent_connections:
         idx, message, score = parent_conn.recv()
+        print(f"idx:{idx} --> socre: {score}, message:{message}")
 
         if message is not None:
-            print('result: ', message)
+            print('message: ', message)
             messages[idx] = message
             earn_score += score
 
@@ -3003,6 +3004,9 @@ def solve_problems_using_parallel_processing(connectionId, requestId, json_data)
     final_msg = ""   
     for message in messages:
         final_msg += message + '\n'
+    
+    print('earn_score: ', earn_score)
+    print('final_msg: ', final_msg)
     
     return final_msg, earn_score
 
@@ -3340,33 +3344,35 @@ def getResponse(connectionId, jsonBody):
                 #for i, data in enumerate(json_data):
                 #    print(f'index: {i}: {json.dumps(data)}')
                     
-                idx = 0
-                msg = ""
-                earn_score = total_score = 0
-                total_idx = len(json_data)+1
-                                    
-                for idx in range(2):
-                    question_group = json_data[idx]
-                    paragraph = question_group["paragraph"]
-                    print('paragraph: ', paragraph)
-                    
-                    problems = question_group["problems"]
-                    print('problems: ', json.dumps(problems))
-                    
-                    idx, message, score = solve_problems_in_paragraph(connectionId, requestId, paragraph, problems, idx, total_idx)
-                    print('idx: ', idx)
-                    print('message: ', message)
-                    print('score: ', score)
-                    
-                    msg += message
-                    earn_score += score
+                multi_region_mode = "disable"
+                if not multi_region_mode=="enable":
+                    idx = 0
+                    msg = ""
+                    earn_score = total_score = 0
+                    total_idx = len(json_data)+1
+                                        
+                    for idx in range(2):
+                        question_group = json_data[idx]
+                        paragraph = question_group["paragraph"]
+                        print('paragraph: ', paragraph)
+                        
+                        problems = question_group["problems"]
+                        print('problems: ', json.dumps(problems))
+                        
+                        idx, message, score = solve_problems_in_paragraph(connectionId, requestId, paragraph, problems, idx, total_idx)
+                        print('idx: ', idx)
+                        print('message: ', message)
+                        print('score: ', score)
+                        
+                        msg += message
+                        earn_score += score
 
-                    for problem in problems:
-                        total_score += int(problem["score"])
-                    
-                    msg += "\n\n"
-                    
-                # msg, earn_score = solve_problems_using_parallel_processing(connectionId, requestId, json_data)
+                        for problem in problems:
+                            total_score += int(problem["score"])
+                        
+                        msg += "\n\n"
+                else:                    
+                    msg, earn_score = solve_problems_using_parallel_processing(connectionId, requestId, json_data)
                     
                 print('score: ', earn_score)
                 msg += f"\n점수: {earn_score}점 / {total_score}점\n"
