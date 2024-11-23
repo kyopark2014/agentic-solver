@@ -2625,13 +2625,16 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         
         if confidence == "5":
             plan = []
+            answer = result
         else:
             plan = state["plan"]
+            answer = ""
         
         return {
             "plan": plan,
             "info": transaction,
             "past_steps": [task],
+            "answer": answer
         }
 
     def replan_node(state: State, config):
@@ -2840,6 +2843,9 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         
     def final_answer(state: State) -> str:
         print('#### final_answer ####')
+        
+        if len(state["plan"])==0:
+            return {"answer": state["answer"]}
         
         # get final answer
         info = state['info']
