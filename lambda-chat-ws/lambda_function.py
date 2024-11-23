@@ -2359,13 +2359,6 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         choices: list[str]
         answer: str
 
-    class Plan(BaseModel):
-        """List of steps as a json format"""
-
-        steps: List[str] = Field(
-            description="different steps to follow, should be in sorted order"
-        )
-
     def plan_node(state: State, config):
         print("###### plan ######")
         print('paragraph: ', state["paragraph"])
@@ -3427,7 +3420,7 @@ def getResponse(connectionId, jsonBody):
                 #for i, data in enumerate(json_data):
                 #    print(f'index: {i}: {json.dumps(data)}')
                     
-                idx = 4
+                idx = 5
                 question_group = json_data[idx]
                 paragraph = question_group["paragraph"]
                 print('paragraph: ', paragraph)
