@@ -775,7 +775,7 @@ export class CdkAgenticSolverStack extends cdk.Stack {
       description: 'lambda for chat using websocket',
       functionName: `lambda-chat-ws-for-${projectName}`,
       code: lambda.DockerImageCode.fromImageAsset(path.join(__dirname, '../../lambda-chat-ws')),
-      timeout: cdk.Duration.seconds(300),
+      timeout: cdk.Duration.seconds(1200),
       memorySize: 2048,
       role: roleLambdaWebsocket,
       environment: {
