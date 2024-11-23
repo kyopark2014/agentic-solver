@@ -38,11 +38,11 @@ const parsingModelArn = `arn:aws:bedrock:${region}::foundation-model/anthropic.c
 const embeddingModelArn = `arn:aws:bedrock:${region}::foundation-model/amazon.titan-embed-text-v2:0`;
 
 const claude3_5_sonnet = [  
-  {
+ /* {
     "bedrock_region": "ap-south-1", // Mumbai
     "model_type": "claude3.5",
     "model_id": "ap.anthropic.claude-3-5-sonnet-20240620-v1:0"  
-  }, 
+  }, */ 
   /*{
     "bedrock_region": "ap-southeast-2", // Sydney
     "model_type": "claude3.5",
