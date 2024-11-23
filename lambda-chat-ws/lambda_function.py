@@ -2972,7 +2972,7 @@ def solve_problems_using_parallel_processing(connectionId, requestId, json_data)
     for idx in range(total_idx):
         messages.append("")
         
-    for idx, question_group in enumerate(json_data):
+    for idx, question_group in enumerate(json_data[:2]):
         parent_conn, child_conn = Pipe()
         parent_connections.append(parent_conn)
         
