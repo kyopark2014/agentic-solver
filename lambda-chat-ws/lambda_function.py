@@ -3438,7 +3438,6 @@ def getResponse(connectionId, jsonBody):
                 #    print(f'preoblem[{n}]: {problem}')
                 
                 msg = ""
-                n = 0
                 for n in range(len(problems)):
                     question = problems[n]["question"]
                     print('question: ', question)                
