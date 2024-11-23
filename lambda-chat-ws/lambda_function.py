@@ -2992,6 +2992,7 @@ def solve_problems_using_parallel_processing(connectionId, requestId, json_data)
             
     for parent_conn in parent_connections:
         result = parent_conn.recv()
+        print('result: ', result)
         
         idx = result["idx"]
         message = result["message"]
@@ -3070,7 +3071,7 @@ def solve_problems(conn, connectionId, requestId, paragraph, problems, idx, tota
     print('message: ', message)
     
     conn.send({
-        "idx:": idx, 
+        "idx": idx, 
         "message": message, 
         "score": earn_score
     })
