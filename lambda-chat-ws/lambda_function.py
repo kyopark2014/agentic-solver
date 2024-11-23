@@ -2960,6 +2960,82 @@ def check_grammer(chat, text):
     
     return msg
 
+def solve_problem_using_parallel_processing(connectionId, requestId, json_data):
+    processes = []
+    parent_connections = []
+    
+    total_idx = len(json_data)+1
+    
+    messages = []
+    earn_score = 0
+    for idx in range(total_idx):
+        messages.append("")
+        
+    for idx, question_group in enumerate(json_data):
+        parent_conn, child_conn = Pipe()
+        parent_connections.append(parent_conn)
+        
+        print(f"idx:{idx} --> data:{question_group}")
+        
+        paragraph = question_group["paragraph"]
+        print('paragraph: ', paragraph)
+                    
+        problems = question_group["problems"]
+        print('problems: ', json.dumps(problems))
+        
+        process = Process(target=solve_problems_in_paragraph, args=(child_conn, connectionId, requestId, paragraph, problems, idx, total_idx))
+        processes.append(process)
+        
+    for process in processes:
+        process.start()
+            
+    for parent_conn in parent_connections:
+        idx, message, score = parent_conn.recv()
+
+        if message is not None:
+            print('result: ', message)
+            messages[idx] = message
+            earn_score += score
+
+    for process in processes:
+        process.join()
+            
+    final_msg = ""   
+    for message in messages:
+        final_msg += message + '\n'
+    
+    return final_msg, earn_score
+
+def solve_problems_in_paragraph(connectionId, requestId, paragraph, problems, idx, total_idx):
+    message = f"{idx+1}/{total_idx}\n"
+    
+    earn_score = 0    
+    for n, problem in enumerate(problems):
+        print(f'--> problem[{n}]: {problem}')
+    
+        question = problem["question"]
+        print('question: ', question)
+        question_plus = ""
+        if "question_plus" in problem:
+            question_plus = problem["question_plus"]
+            print('question_plus: ', question_plus)
+        choices = problem["choices"]
+        print('choices: ', choices)
+        answer = problem["answer"]
+        score = problem["score"]
+            
+        result = solve_CSAT_Korean(connectionId, requestId+str(idx)+str(n), paragraph, question, question_plus, choices, idx+n)
+        
+        output = result[result.find('<result>')+8:result.find('</result>')]
+
+        if answer == int(output):
+            message += f"{question} {output} (OK)\n"
+            earn_score += int(score)
+        else:
+            message += f"{question} {output} (NOK, {answer}, -{score})\n"
+    
+    return idx, message, earn_score
+
 def getResponse(connectionId, jsonBody):
     userId  = jsonBody['user_id']
     # print('userId: ', userId)
@@ -3239,44 +3315,32 @@ def getResponse(connectionId, jsonBody):
                 #    print(f'index: {i}: {json.dumps(data)}')
                     
                 idx = 0
+                msg = ""
+                earn_score = total_score = 0
+                total_idx = len(json_data)+1
+                
                 question_group = json_data[idx]
                 paragraph = question_group["paragraph"]
                 print('paragraph: ', paragraph)
                 
                 problems = question_group["problems"]
                 print('problems: ', json.dumps(problems))
-                                
-                total_idx = len(jsonBody)+1
-                msg = f"{idx+1}/{total_idx}\n"
-                earn_score = total_score = 0
                 
-                for n, problem in enumerate(problems):
-                    print(f'--> problem[{n}]: {problem}')
+                idx, message, score = solve_problems_in_paragraph(connectionId, requestId, paragraph, problems, idx, total_idx)
+                print('idx: ', idx)
+                print('message: ', message)
+                print('score: ', score)
                 
-                    question = problem["question"]
-                    print('question: ', question)
-                    question_plus = ""
-                    if "question_plus" in problem:
-                        question_plus = problem["question_plus"]
-                        print('question_plus: ', question_plus)
-                    choices = problem["choices"]
-                    print('choices: ', choices)
-                    answer = problem["answer"]
-                    score = problem["score"]
-                        
-                    result = solve_CSAT_Korean(connectionId, requestId+str(idx)+str(n), paragraph, question, question_plus, choices, idx+n)
+                msg += message
+                earn_score += score
+                
+                for problem in problems:
+                    total_score += int(problem["score"])
                     
-                    output = result[result.find('<result>')+8:result.find('</result>')]
-
-                    if answer == int(output):
-                        msg += f"{question} {output} (OK)\n"
-                        earn_score += int(score)
-                    else:
-                        msg += f"{question} {output} (NOK, {answer}, -{score})\n"
+                # solve_problem_using_parallel_processing
+                
+                msg += "\n\n"
                     
-                    total_score += int(score)
-                    
-                # msg = "uploaded file: "+object
                 print('score: ', earn_score)
                 msg += f"\n점수: {earn_score}점 / {total_score}점\n"
                 
