@@ -37,7 +37,32 @@ const knowledge_base_name = projectName;
 const parsingModelArn = `arn:aws:bedrock:${region}::foundation-model/anthropic.claude-3-sonnet-20240229-v1:0`;
 const embeddingModelArn = `arn:aws:bedrock:${region}::foundation-model/amazon.titan-embed-text-v2:0`;
 
-const claude3_5_sonnet = [
+const claude3_5_sonnet = [  
+ /* {
+    "bedrock_region": "ap-south-1", // Mumbai
+    "model_type": "claude3.5",
+    "model_id": "ap.anthropic.claude-3-5-sonnet-20240620-v1:0"  
+  }, */
+  {
+    "bedrock_region": "ap-southeast-2", // Sydney
+    "model_type": "claude3.5",
+    "model_id": "ap.anthropic.claude-3-5-sonnet-20240620-v1:0"  
+  },
+  {
+    "bedrock_region": "ap-northeast-1", // Tokyo
+    "model_type": "claude3.5",
+    "model_id": "anthropic.claude-3-5-sonnet-20240620-v1:0"  
+  },
+  {
+    "bedrock_region": "eu-central-1", // Frankfurt
+    "model_type": "claude3.5",
+    "model_id": "anthropic.claude-3-5-sonnet-20240620-v1:0"  
+  },
+  {
+    "bedrock_region": "eu-west-3", // Paris
+    "model_type": "claude3.5",
+    "model_id": "eu.anthropic.claude-3-5-sonnet-20240620-v1:0"  
+  },
   {
     "bedrock_region": "ap-northeast-2", // Oregon
     "model_type": "claude3.5",
@@ -62,31 +87,6 @@ const claude3_5_sonnet = [
     "bedrock_region": "ap-northeast-2", // Seoul
     "model_type": "claude3.5",
     "model_id": "anthropic.claude-3-5-sonnet-20240620-v1:0"  
-  },
- /* {
-    "bedrock_region": "ap-south-1", // Mumbai
-    "model_type": "claude3.5",
-    "model_id": "apac.anthropic.claude-3-5-sonnet-20240620-v1:0"  
-  }, */
-  {
-    "bedrock_region": "ap-southeast-2", // Sydney
-    "model_type": "claude3.5",
-    "model_id": "apac.anthropic.claude-3-5-sonnet-20240620-v1:0"  
-  },
-  {
-    "bedrock_region": "ap-northeast-1", // Tokyo
-    "model_type": "claude3.5",
-    "model_id": "anthropic.claude-3-5-sonnet-20240620-v1:0"  
-  },
-  {
-    "bedrock_region": "eu-central-1", // Frankfurt
-    "model_type": "claude3.5",
-    "model_id": "anthropic.claude-3-5-sonnet-20240620-v1:0"  
-  },
-  {
-    "bedrock_region": "eu-west-3", // Paris
-    "model_type": "claude3.5",
-    "model_id": "eu.anthropic.claude-3-5-sonnet-20240620-v1:0"  
   }
 ];
 
