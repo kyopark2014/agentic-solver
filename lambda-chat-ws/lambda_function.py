@@ -2373,61 +2373,46 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         
         update_state_message("planning...", config)
         
-        if isKorean(question)==True:            
-            system = (
-                "당신은 복잡한 문제를 해결하기 위해 step by step plan을 생성하는 AI agent입니다."                
-                
-                "문제를 충분히 이해하고, 문제 해결을 위한 계획을 다음 형식으로 4단계 이하의 계획을 세웁니다."                
-                "각 단계는 반드시 한줄의 문장으로 AI agent가 수행할 내용을 명확히 나타냅니다."
-                "1. [질문을 해결하기 위한 단계]"
-                "2. [질문을 해결하기 위한 단계]"
-                "..."                
-            )
+        system = (
+            "당신은 복잡한 문제를 해결하기 위해 step by step plan을 생성하는 AI agent입니다."                
             
-            human = (
-                "<paragraph> tag의 주어진 문장을 참조하여 <question> tag의 질문에 대한 적절한 답변을 <choice> tag안에서 선택하가 위한 단계별 계획을 세우세요."
-                "단계별 계획에 <result> tag를 붙여주세요."
-                # "이 계획은 답변을 구하기 위한 단계를 포함합니다. 이를 올바르게 실행하면 정확한 답을 얻을 수 있습니다. 불필요한 단계는 추가하지 마십시오."
-                #"This plan should involve individual tasks, that if executed correctly will yield the correct answer. Do not add any superfluous steps."
-                #"The result of the final step should be the final answer. Make sure that each step has all the information needed - do not skip steps."                
-                
-                "주어진 문장:"
-                "<paragraph>"
-                "{paragraph}"
-                "</paragraph>"
+            "문제를 충분히 이해하고, 문제 해결을 위한 계획을 다음 형식으로 4단계 이하의 계획을 세웁니다."                
+            "각 단계는 반드시 한줄의 문장으로 AI agent가 수행할 내용을 명확히 나타냅니다."
+            "1. [질문을 해결하기 위한 단계]"
+            "2. [질문을 해결하기 위한 단계]"
+            "..."                
+        )
+        
+        human = (
+            "<paragraph> tag의 주어진 문장을 참조하여 <question> tag의 질문에 대한 적절한 답변을 <choice> tag안에서 선택하가 위한 단계별 계획을 세우세요."
+            "단계별 계획에 <result> tag를 붙여주세요."
+            
+            "주어진 문장:"
+            "<paragraph>"
+            "{paragraph}"
+            "</paragraph>"
 
-                "질문:"
-                "<question>"
-                "{question}"
-                                
-                "{question_plus}"                
-                "</question>"
-
-                "선택지:"
-                "<choices>"
-                "{list_choices}"
-                "</choices>"
-            )
+            "질문:"
+            "<question>"
+            "{question}"
                             
-        else:
-            system = (
-                "For the given objective, come up with a simple step by step plan."
-                "This plan should involve individual tasks, that if executed correctly will yield the correct answer. Do not add any superfluous steps."
-                "The result of the final step should be the final answer. Make sure that each step has all the information needed - do not skip steps."
-                "Provide the final answer with <result> tag."
-            )
-            
+            "{question_plus}"                
+            "</question>"
+
+            "선택지:"
+            "<choices>"
+            "{list_choices}"
+            "</choices>"
+        )
+                            
         planner_prompt = ChatPromptTemplate.from_messages(
             [
                 ("system", system),
                 ("human", human),
             ]
         )
-        
-        chat = get_chat()   
-        
+        chat = get_chat()           
         planner = planner_prompt | chat
-                        
         response = planner.invoke({
             "paragraph": paragraph,
             "question": question,
@@ -2442,25 +2427,7 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         planning_steps = plan.split('\n')
         print('planning_steps: ', planning_steps)
         
-        # for attempt in range(5):
-        #     chat = get_chat()
-        #     structured_llm = chat.with_structured_output(Plan, include_raw=True)
-        #     info = structured_llm.invoke(output)
-        #     print(f'attempt: {attempt}, info: {info}')
-            
-        #     if not info['parsed'] == None:
-        #         parsed_info = info['parsed']
-        #         # print('parsed_info: ', parsed_info)        
-        #         print('steps: ', parsed_info.steps)                
-        #         return {
-        #             "plan": parsed_info.steps
-        #         }
-        
-        # print('parsing_error: ', info['parsing_error'])
-        # return {"plan": []}
-        
         return {"plan": planning_steps}
-        
 
     def execute_node(state: State, config):
         print("###### execute ######")
@@ -2475,12 +2442,8 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
                 
         update_state_message("executing...", config)
         
-        # plan_str = "\n".join(f"{i+1}. {step}" for i, step in enumerate(plan))
-        # print("plan_str: ", plan_str)
-        
         task = plan[0]
         print('task: ', task)                        
-        #print('paragraph: ', state["paragraph"])
         
         context = ""
         for info in state['info']:
@@ -2492,57 +2455,16 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
                         
         system = (
             "당신은 국어 수능문제를 푸는 일타강사입니다."
-            #"모든 선택지마다 근거를 지문에서 찾아 설명하세요."
-            #"문제를 풀이할 때 모든 선택지들을 검토하세요."
-            # "다음의 주어진 문장으로 적절한 답변을 생성하세요."
         )
-            
-        # human = (
-        #     "당신은 <paragraph> tag의 주어진 문장을 참조하여 <question> tag의 주어진 질문에 대한 적절한 답변을 <choice> tag안에서 선택하려고 합니다." 
-        #     "이를 위해 <task> tag의 단계를 수행하고 결과를 기술합니다."
-        #     # "최종 결과에 <result> tag를 붙여주세요."
-                
-        #     "주어진 문장:"
-        #     "<paragraph>"
-        #     "{paragraph}"
-        #     "</paragraph>"
-
-        #     "주어진 질문:"
-        #     "<question>"
-        #     "{question}"
-            
-        #     "{question_plus}"        
-        #     "</question>"
-
-        #     "선택지:"
-        #     "<choices>"
-        #     "{list_choices}"
-        #     "</choices>"
-            
-        #     "단계:"
-        #     "<task>"
-        #     "{task}"
-        #     "</task>"
-        # )
         human = (
             "당신의 목표는 <paragraph> tag의 주어진 문장으로 부터 <question> tag의 주어진 질문에 대한 적절한 답변을 <choice> tag의 선택지에서 찾는것입니다."
-            # "여기에서는 복잡한 질문의 답변을 단계적으로 구하기 위해서, <task> tag의 실행 단계를 수행하고 결과와 근거를 명확히 설명합니다." 
             "<previous_result> tag에 있는 이전 단계의 결과를 참조하여, <task> tag의 실행 단계를 수행하고 적절한 답변을 구합니다."
             "문제를 풀이할 때 모든 선택지마다 근거를 주어진 문장에서 찾아 설명하세요."
             "선택지의 주요 단어들의 의미를 주어진 문장과 비교해서 꼼꼼히 차이점을 찾습니다."
             "질문에 대한 답을 선택지 중에 한 개만 골라서 대답해야 합니다."
-            # "선택지에서 답을 찾을수 없는 경우에는 0번을 선택합니다."
             "최종 결과의 번호에 <result> tag를 붙여주세요."
             "최종 결과의 신뢰도를 1-5 사이의 숫자로 나타냅니다. 신뢰되는 <confidence> tag를 붙입니다."  
-                
-            #, <task> tag의 실행 단계를 수행하고 결과와 근거를 명확히 설명합니다." 
-            
-            
-            # "<task> tag의 단계를 수행하고 결과 근거를 명확히 설명합니다."
-            # "<task> tag의 단계를 수행할 때에 모든 선택지들을 검토하세요."
-            # "최종 답변과 근거를 기술합니다."
-            # "결과에 <result> tag를 붙여주세요."
-                
+                                
             "주어진 문장:"
             "<paragraph>"
             "{paragraph}"
@@ -2570,25 +2492,14 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
             "{task}"
             "</task>"
         )
-                                        
         prompt = ChatPromptTemplate.from_messages(
             [
                 ("system", system),
                 ("human", human),
             ]
         )
-        
         chat = get_chat()   
-        
-        chain = prompt | chat
-                        
-        # response = chain.invoke({
-        #     "paragraph": paragraph,
-        #     "question": question,
-        #     "question_plus": question_plus,
-        #     "list_choices": list_choices,
-        #     "task": task
-        # })
+        chain = prompt | chat                        
         response = chain.invoke({
             "paragraph": state["paragraph"],
             "question": state["question"],
@@ -2598,11 +2509,6 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
             "task": task
         })
         print('response.content: ', response.content)
-        
-        # result = response.content
-        # output = result[result.find('<result>')+8:len(result)-9]
-        # print('output: ', output)                
-        # transaction = [HumanMessage(content=task), AIMessage(content=output)]
         
         result = response.content
         confidence = result[result.find('<confidence>')+12:result.find('</confidence>')]
@@ -2627,11 +2533,7 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
 
     def replan_node(state: State, config):
         print('#### replan ####')
-        # print('state of replan node: ', state)
-        
-        # print('paragraph: ', state["paragraph"])
-        # print('question: ', state["question"])
-        # print('question_plus: ', state["question_plus"])
+        # print('state of replan node: ', state)        
         print('past_steps: ', state["past_steps"])
                 
         list_choices = ""
@@ -2645,114 +2547,58 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         if len(state["plan"])==0:
             return {"plan": []}
         
-        if isKorean(question)==True:
-            system = (
-                "당신은 복잡한 문제를 해결하기 위해 step by step plan을 생성하는 AI agent입니다."
-            )
+        system = (
+            "당신은 복잡한 문제를 해결하기 위해 step by step plan을 생성하는 AI agent입니다."
+        )        
+        human = (
+            "당신의 목표는 <paragraph> tag의 주어진 문장으로 부터 <question> tag의 주어진 질문에 대한 적절한 답변을 <choice> tag안에서 선택지에서 찾는것입니다."
             
-            human = (
-                # "이 계획은 답변을 구하기 위한 단계를 포함합니다. 이를 올바르게 실행하면 정확한 답을 얻을 수 있습니다. 불필요한 단계는 추가하지 마십시오."
-                #"This plan should involve individual tasks, that if executed correctly will yield the correct answer. Do not add any superfluous steps."
-                #"The result of the final step should be the final answer. Make sure that each step has all the information needed - do not skip steps."                
-                
-                "당신의 목표는 <paragraph> tag의 주어진 문장으로 부터 <question> tag의 주어진 질문에 대한 적절한 답변을 <choice> tag안에서 선택지에서 찾는것입니다."
-                
-                "주어진 문장:"
-                "<paragraph>"
-                "{paragraph}"
-                "</paragraph>"
-                
-                "주어진 질문:"
-                "<question>"
-                "{question}"
-                
-                "{question_plus}"
-                "</question>"
-                
-                "선택지:"
-                "<list_choices>"
-                "{list_choices}"
-                "</list_choices>"
-                
-                "당신의 원래 계획은 아래와 같습니다." 
-                "<original_plan>"                
-                "{plan}"
-                "</original_plan>"
+            "주어진 문장:"
+            "<paragraph>"
+            "{paragraph}"
+            "</paragraph>"
+            
+            "주어진 질문:"
+            "<question>"
+            "{question}"
+            
+            "{question_plus}"
+            "</question>"
+            
+            "선택지:"
+            "<list_choices>"
+            "{list_choices}"
+            "</list_choices>"
+            
+            "당신의 원래 계획은 아래와 같습니다." 
+            "<original_plan>"                
+            "{plan}"
+            "</original_plan>"
 
-                "안료한 단계는 아래와 같습니다."
-                "<past_steps>"
-                "{past_steps}"
-                "</past_steps>"
-                
-                #"<original_plan> tag의 원 계획과 <past_steps> tag의 완료된 계획을 참조하여 새로운 단계별 계획을 생성합니다. 새로운 계획에는 <plan> tag를 붙여주세요."
-                "당신은 <original_plan> tag의 원래 계획을 상황에 맞게 수정하세요."
-                "계획에 아직 해야 할 단계만 추가하세요. 이전에 완료한 단계는 계획에 포함하지 마세요."
-                
-                #"<original_plan> tag의 원래 계획에서 아직 해야 할 단계로 새로운 계획을 수립합니다."
-                #"<past_steps> tag의 완료된 단계와 유사한 단계는 새로운 계획에 포함하지 않습니다."
-                
-                #"If no more steps are needed and you can return to the user, then respond with that."
-                "수정된 계획에는 <plan> tag를 붙여주세요."
-                # "Only add steps to the plan that still NEED to be done. Do not return previously done steps as part of the plan."
-                "만약 더 이상 계획을 세우지 않아도 <question> tag의 주어진 질문에 답변할 있다면, 최종 결과로 <question>에 대한 답변을 <result> tag를 붙여 전달합니다."
-                
-                "수정된 계획의 형식은 아래와 같습니다."
-                "각 단계는 반드시 한줄의 문장으로 AI agent가 수행할 내용을 명확히 나타냅니다."
-                "1. [질문을 해결하기 위한 단계]"
-                "2. [질문을 해결하기 위한 단계]"
-                "..."         
-                
-                #"If no more steps are needed and you can return to the user, then respond with that."
-                #"Otherwise, fill out the plan with <result> tag."                
-            )            
-        # else: 
-        #     replanner_prompt = ChatPromptTemplate.from_template(
-        #         "For the given objective, come up with a simple step by step plan."
-        #         "This plan should involve individual tasks, that if executed correctly will yield the correct answer."
-        #         "Do not add any superfluous steps."
-        #         "The result of the final step should be the final answer."
-        #         "Make sure that each step has all the information needed - do not skip steps."
-
-        #         "Your objective was this:"
-        #         "<paragraph>"
-        #         "{paragraph}"
-        #         "</paragraph>"
-                
-        #         "<question_plus>"
-        #         "{question_plus}"
-        #         "</question_plus>"
-                
-        #         "<question>"
-        #         "{question}"
-        #         "</question>"
-                
-        #         "<list_choices>"
-        #         "{list_choices}"
-        #         "</list_choices>"
-                
-        #         "Your original plan was this:"
-        #         "{plan}"
-
-        #         "You have currently done the follow steps:"
-        #         "{past_steps}"
-
-        #         "Update your plan accordingly."
-        #         "If no more steps are needed and you can return to the user, then respond with that."
-        #         "Otherwise, fill out the plan."
-        #         "Only add steps to the plan that still NEED to be done. Do not return previously done steps as part of the plan."
-        #         "단계별 계획에 <result> tag를 붙여주세요."
-        #     )
-        
+            "안료한 단계는 아래와 같습니다."
+            "<past_steps>"
+            "{past_steps}"
+            "</past_steps>"
+            
+            "당신은 <original_plan> tag의 원래 계획을 상황에 맞게 수정하세요."
+            "계획에 아직 해야 할 단계만 추가하세요. 이전에 완료한 단계는 계획에 포함하지 마세요."                
+            "수정된 계획에는 <plan> tag를 붙여주세요."
+            "만약 더 이상 계획을 세우지 않아도 <question> tag의 주어진 질문에 답변할 있다면, 최종 결과로 <question>에 대한 답변을 <result> tag를 붙여 전달합니다."
+            
+            "수정된 계획의 형식은 아래와 같습니다."
+            "각 단계는 반드시 한줄의 문장으로 AI agent가 수행할 내용을 명확히 나타냅니다."
+            "1. [질문을 해결하기 위한 단계]"
+            "2. [질문을 해결하기 위한 단계]"
+            "..."         
+        )                    
         replanner_prompt = ChatPromptTemplate.from_messages(
             [
                 ("system", system),
                 ("human", human),
             ]
-        )
-        
+        )        
         chat = get_chat()
-        replanner = replanner_prompt | chat
-        
+        replanner = replanner_prompt | chat        
         response = replanner.invoke({
             "paragraph": state["paragraph"],
             "question_plus": state["question_plus"],
@@ -2767,16 +2613,7 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         print('find: ', result.find('<plan>'))
         
         if result.find('<plan>') == -1:
-            #result = response.content
-            #output = result[result.find('<result>')+8:len(result)-9]
-        
-            #transaction = [HumanMessage(content=response.content), AIMessage(content=output)]
-            #print('transaction: ', transaction)
-            
-            return {
-                #"info": transaction,
-                "plan": []
-            }
+            return {"plan": []}
         else:
             output = result[result.find('<plan>')+6:result.find('</plan>')]
             print('plan output: ', output)
@@ -2786,35 +2623,7 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
             print('planning_steps: ', planning_steps)
         
             return {"plan": planning_steps}
-        
-        # result = None
-        # for attempt in range(5):
-        #     chat = get_chat()
-        #     structured_llm = chat.with_structured_output(Act, include_raw=True)
-        #     info = structured_llm.invoke(output)
-        #     print(f'attempt: {attempt}, info: {info}')
-            
-        #     if not info['parsed'] == None:
-        #         result = info['parsed']
-        #         print('replan result: ', result)
-        #         break
-                    
-        # if result == None:
-        #     return {"response": "답을 찾지 못하였습니다. 다시 시도해주세요."}
-        # else:
-        #     if isinstance(result.action, Response):  # "parsed":"Act(action=Response(response="
-        #         print('response: ', result.action.response)
-        #         return {
-        #             "response": result.action.response,
-        #             "info": [result.action.response]
-        #         }
-        #     else:  # "parsed":"Act(action=Plan(steps=
-        #         # return {"plan": result.action.steps}
-        #         plan = output.strip().replace('\n\n', '\n')
-        #         planning_steps = plan.split('\n')
-        #         print('planning_steps: ', planning_steps)
-        #         return {"plan": planning_steps}
-        
+                
     def should_end(state: State) -> Literal["continue", "end"]:
         print('#### should_end ####')
         # print('state: ', state)
@@ -2856,94 +2665,51 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
             list_choices += f"({i+1}) {choice}\n"
         print('list_choices: ', list_choices)
         
-        if isKorean(question)==True:
-            system = (
-                "당신은 국어 수능문제를 푸는 일타강사입니다."                
-            )
+        system = (
+            "당신은 국어 수능문제를 푸는 일타강사입니다."                
+        )        
+        human = (
+            "<context> tag에 있는 검토 결과를 활용하여, <paragraph> tag의 주어진 문장으로 부터 <question> tag의 주어진 질문에 대한 적절한 답변을 <choice> tag안에서 선택하려고 합니다."
+            "질문에 대한 답을 선택지 중에 한 개만 골라서 대답해야 합니다."
+            "답변의 이유를 풀어서 명확하게 설명합니다."
+            "최종 결과의 번호에 <result> tag를 붙여주세요."  
+            "최종 결과의 신뢰도를 1-5 사이의 숫자로 나타냅니다. 신뢰되는 <confidence> tag를 붙입니다."  
             
-            human = (
-                "<context> tag에 있는 검토 결과를 활용하여, <paragraph> tag의 주어진 문장으로 부터 <question> tag의 주어진 질문에 대한 적절한 답변을 <choice> tag안에서 선택하려고 합니다."
-                "질문에 대한 답을 선택지 중에 한 개만 골라서 대답해야 합니다."
-                "답변의 이유를 풀어서 명확하게 설명합니다."
-                "최종 결과의 번호에 <result> tag를 붙여주세요."  
-                "최종 결과의 신뢰도를 1-5 사이의 숫자로 나타냅니다. 신뢰되는 <confidence> tag를 붙입니다."  
-                
-                "이전 단계에서 검토한 결과:"
-                "<context>"
-                "{context}"
-                "</context>"
-                                
-                "주어진 문장:"
-                "<paragraph>"
-                "{paragraph}"
-                "</paragraph>"
+            "이전 단계에서 검토한 결과:"
+            "<context>"
+            "{context}"
+            "</context>"
+                            
+            "주어진 문장:"
+            "<paragraph>"
+            "{paragraph}"
+            "</paragraph>"
 
-                "주어진 질문:"
-                "<question>"
-                "{question}"
-                                
-                "{question_plus}"                
-                "</question>"
+            "주어진 질문:"
+            "<question>"
+            "{question}"
+                            
+            "{question_plus}"                
+            "</question>"
 
-                "선택지:"
-                "<choices>"
-                "{list_choices}"
-                "</choices>"       
-            )
-        else: 
-            system = (
-                "Here is pieces of context, contained in <context> tags."
-                "Provide a concise answer to the question at the end."
-                "Explains clearly the reason for the answer."
-                "If you don't know the answer, just say that you don't know, don't try to make up an answer."
-                "Put it in <result> tags."
-                
-                "<context>"
-                "{context}"
-                "</context>"
-                
-                "주어진 문장:"
-                "<paragraph>"
-                "{paragraph}"
-                "</paragraph>"
-
-                "주어진 질문:"
-                "<question>"
-                "{question}"
-                                
-                "{question_plus}"                
-                "</question>"
-
-                "선택지:"
-                "<choices>"
-                "{list_choices}"
-                "</choices>"                
-            )    
-            human = "{question}"
-        
+            "선택지:"
+            "<choices>"
+            "{list_choices}"
+            "</choices>"       
+        )
         prompt = ChatPromptTemplate.from_messages([("system", system), ("human", human)])
-        # print('prompt: ', prompt)
-                    
         chat = get_chat()
-        chain = prompt | chat
-        
-        try: 
-            response = chain.invoke(
-                {
-                    "context": context,
-                    "paragraph": state["paragraph"],                    
-                    "question": state["question"],
-                    "question_plus": state["question_plus"],
-                    "list_choices": list_choices
-                }
-            )
-            result = response.content
-            #output = result[result.find('<result>')+8:len(result)-9] # remove <result> tag
-            #print('output: ', output)
-
-        except Exception:
-            err_msg = traceback.format_exc()
-            print('error message: ', err_msg)
+        chain = prompt | chat        
+        response = chain.invoke(
+            {
+                "context": context,
+                "paragraph": state["paragraph"],                    
+                "question": state["question"],
+                "question_plus": state["question_plus"],
+                "list_choices": list_choices
+            }
+        )
+        result = response.content
 
         return {"answer": result}  
 
@@ -3433,7 +3199,7 @@ def getResponse(connectionId, jsonBody):
                 
                 total_idx = len(jsonBody)+1
                 msg = f"{idx+1}/{total_idx}\n"
-                total_score = 0
+                earn_score = total_score = 0
                 for n in range(len(problems)):
                     question = problems[n]["question"]
                     print('question: ', question)                
@@ -3446,19 +3212,21 @@ def getResponse(connectionId, jsonBody):
                     answer = problems[n]["answer"]
                     score = problems[n]["score"]
                         
-                    result = solve_CSAT_Korean(connectionId, requestId+str(n), paragraph, question, question_plus, choices)
+                    result = solve_CSAT_Korean(connectionId, requestId+str(idx)+str(n), paragraph, question, question_plus, choices)
                     
                     output = result[result.find('<result>')+8:result.find('</result>')]
                     
                     if answer == int(output):
                         msg += f"{question} {output} (OK)\n"
-                        total_score += int(score)
+                        earn_score += int(score)
                     else:
-                        msg += f"{question} {output} (NOK, {answer})\n"
+                        msg += f"{question} {output} (NOK, {answer}, -{score})\n"
+                    
+                    total_score += int(score)
                     
                 # msg = "uploaded file: "+object
-                print('score: ', total_score)
-                msg += f"\n점수: {total_score}점\n"
+                print('score: ', earn_score)
+                msg += f"\n점수: {earn_score}점 / {total_score}점\n"
                 
             else:
                 msg = "uploaded file: "+object
