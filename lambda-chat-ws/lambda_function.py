@@ -3438,7 +3438,8 @@ def getResponse(connectionId, jsonBody):
                 #for n, problem in enumerate(problems):
                 #    print(f'preoblem[{n}]: {problem}')
                 
-                msg = ""
+                total_idx = len(jsonBody)+1
+                msg = f"{idx+1}/{total_idx}\n"
                 total_score = 0
                 for n in range(len(problems)):
                     question = problems[n]["question"]
