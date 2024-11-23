@@ -3427,7 +3427,7 @@ def getResponse(connectionId, jsonBody):
                 #for i, data in enumerate(json_data):
                 #    print(f'index: {i}: {json.dumps(data)}')
                     
-                idx = 1
+                idx = 2
                 question_group = json_data[idx]
                 paragraph = question_group["paragraph"]
                 print('paragraph: ', paragraph)
@@ -3439,6 +3439,7 @@ def getResponse(connectionId, jsonBody):
                 #    print(f'preoblem[{n}]: {problem}')
                 
                 msg = ""
+                total_score = 0
                 for n in range(len(problems)):
                     question = problems[n]["question"]
                     print('question: ', question)                
@@ -3448,14 +3449,22 @@ def getResponse(connectionId, jsonBody):
                         print('question_plus: ', question_plus)
                     choices = problems[n]["choices"]
                     print('choices: ', choices)
+                    answer = problems[n]["answer"]
+                    score = problems[n]["score"]
                         
                     result = solve_CSAT_Korean(connectionId, requestId+str(n), paragraph, question, question_plus, choices)
                     
-                    answer  = result[result.find('<result>')+8:result.find('</result>')]
-                
-                    msg += f"{question} {answer}\n"
+                    output  = result[result.find('<result>')+8:result.find('</result>')]
+                    
+                    if answer == output:
+                        msg += f"{question} {output} (OK)\n"
+                        total_score += int(score)
+                    else:
+                        msg += f"{question} {output} (NOK, {answer})\n"
                     
                 # msg = "uploaded file: "+object
+                print('score: ', total_score)
+                msg += f"\n점수: {total_score}점\n"
                 
             else:
                 msg = "uploaded file: "+object
