@@ -164,7 +164,8 @@ def replan_node(state: State, config):
 
 [2023_11_KICE_4.json](./contents/2023_11_KICE_4.json)에 대한 결과는 아래와 같습니다.
 
-![image](https://github.com/user-attachments/assets/e872b72f-3945-46bc-87c4-92104bd9f009)
+![image](https://github.com/user-attachments/assets/43d62f6d-5482-43e5-acbf-ca72efdbfb9b)
+
 
 [2023_11_KICE_5.json](./contents/2023_11_KICE_5.json)에 대한 결과는 아래와 같습니다.
 
