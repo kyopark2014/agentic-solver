@@ -3085,7 +3085,7 @@ def solve_problems(conn, connectionId, requestId, paragraph, problems, idx, tota
         else:
             message += f"{question} {selected_answer} (NOK, {answer}, -{score})\n"
             
-    print('earn_score: ', earn_score)
+    print('earn_score: ', earn_score) 
     print('message: ', message)
     
     sendResultMessage(connectionId, requestId+str(idx), message)
