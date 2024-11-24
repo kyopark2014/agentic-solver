@@ -13,7 +13,8 @@
 
 ### 복잡한 문제로 수능 국어를 선택한 이유
 
-수학능력시험의 국어는 한국어에 대한 이해를 측정하기 위해 [지문과 선택지](https://github.com/NomaDamas/KICE_slayer_AI_Korean/blob/master/data/2023_11_KICE.json)가 주어집니다. 따라서, LLM의 언어 및 분석 능력을 판단하기에 매우 좋은 예제입니다. 또한, [수능 문제의 경우에 정답이 알려져있고 상세한 해설서](https://m.blog.naver.com/awesome-2030/222931282476)도 있습니다. 
+수학 능력 시험의 국어는 LLM을 이용한 어플리케이션의 한국어에 대한 이해를 측정하기 좋은 방법입니다. [지문과 선택지-화법과 작문](https://github.com/NomaDamas/KICE_slayer_AI_Korean/blob/master/data/2023_11_KICE.json)은 json포맷으로 문제와 답을 제공하고 있습니다. 또한, [수능 문제의 경우에 정답이 알려져있고 상세한 해설서](https://m.blog.naver.com/awesome-2030/222931282476)도 결과를 확인할 때에 참고할 수 있습니다.
+
 
 
 ## 전체 Architecture
