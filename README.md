@@ -90,17 +90,62 @@ def replan_node(state: State, config):
 이때, [flow-logs.md](https://github.com/kyopark2014/agentic-solver/blob/main/flow-logs.md)와 같이 replan의 결과로 Response 또는 Plan을 받게 됩니다.
 
 
-## 실행 결과
 
-"서울에서 부산을 거쳐서 제주로 가는 가장 저렴한 방법은?"의 질문에 대한 답변은 아래와 같습니다. 
+## 직접 실습 해보기
 
-![noname](https://github.com/user-attachments/assets/dd49ee70-f086-4bf5-b9aa-dfb52ba3807f)
+### 사전 준비 사항
 
-이때의 동작을 LangSmith로 확인합니다.
+이 솔루션을 사용하기 위해서는 사전에 아래와 같은 준비가 되어야 합니다.
 
-![image](https://github.com/user-attachments/assets/003efb54-d02a-414c-837a-207491cf4007)
+- [AWS Account 생성](https://repost.aws/ko/knowledge-center/create-and-activate-aws-account)에 따라 계정을 준비합니다.
+
+### CDK를 이용한 인프라 설치
+
+본 실습에서는 us-west-2 리전을 사용합니다. [인프라 설치](./deployment.md)에 따라 CDK로 인프라 설치를 진행합니다. 
+
+
+## 실행결과
+
 
 ### 수능 국어 문제
+
+채팅 메뉴에서 파일을 선택하여 업로드를 수행합니다. 여기에서는 테스트 계정의 quota 이슈로 5개의 파일로 나눠서 테스트를 수행하였습니다.
+
+[2023_11_KICE_1.json](./contents/2023_11_KICE_1.json)을 다운로드 후에 채팅창 하단의 파일 업로드 버튼을 선택하여 파일을 업로드한 후에 결과를 확인합니다. 
+
+![image](https://github.com/user-attachments/assets/c6950a3c-6b38-4305-a752-f7ab81b1e1a6)
+
+
+#### 실패 문제의 분석
+
+[2023_11_KICE_2.json](./contents/2023_11_KICE_2.json)에 대한 결과는 아래와 같습니다.
+
+```text
+윗글의 내용과 일치하지 않는 것은? 4 (OK)
+㉠에 대한 이해로 가장 적절한 것은? 5 (OK)
+윗글을 바탕으로 <보기>를 이해한 내용으로 가장 적절한 것은? [3점] 2 (OK)
+문맥상 ⓐ～ⓔ의 의미와 가장 가까운 것은? 3 (NOK, 5, -2)
+
+윗글의 내용과 일치하지 않는 것은? 3 (OK)
+윗글을 읽고 추론한 내용으로 적절하지 않은 것은? 0 (NOK, 4, -2)
+㉠, ㉡에 대한 이해로 가장 적절한 것은? 4 (OK)
+윗글을 바탕으로 <보기>를 탐구한 내용으로 가장 적절한 것은? 2 (NOK, 1, -3)
+점수: 11점 / 18점
+```
+
+13번 문제의 경우에 문맥에 대한 이해가 필요한데, replan과정을 거쳤음에도 문장을 완벽히 이해하지 못하여 실패한것으로 보여집니다. 
+
+![image](https://github.com/user-attachments/assets/52160d95-e1f4-4613-be00-6a9c74706ea9)
+
+15번 문제의 경우에는 본문의 그래프에 대한 이해가 필요하지만 json 파일에는 그림 파일에 대한 정보를 제공하지 않았습니다. 따라서 판단 불가로 처리되어서 답을 구하지 못하였습니다.
+
+![noname](https://github.com/user-attachments/assets/d1e0b6b6-de74-41b7-a813-16cef48873b6)
+
+또한 17번 문제의 경우에 지문의 그림과 함께 보기의 그림도 같이 이해가 필요하나 이에 대한 정보가 없어서 실패한것으로 보여집니다.
+
+![image](https://github.com/user-attachments/assets/fa02aadd-bcca-4c79-903d-fef19f87e670)
+
+
 
 ### 수능 한국사 문제
 
@@ -145,27 +190,17 @@ LangSmith를 보면 아래와 같이 1회 replan후 결과를 얻었습니다.
 }
 ```
 
+### 메뉴의 Problem Solver 실행 결과
 
-## 직접 실습 해보기
+메뉴의 Problem Solver는 인터넷 검색 결과를 이용해 얻어진 정보를 활용합니다. 채팅창에서 "서울에서 부산을 거쳐서 제주로 가는 가장 저렴한 방법은?"이라는 질문을 하고 답변을 확인합니다. 
 
-### 사전 준비 사항
+![noname](https://github.com/user-attachments/assets/dd49ee70-f086-4bf5-b9aa-dfb52ba3807f)
 
-이 솔루션을 사용하기 위해서는 사전에 아래와 같은 준비가 되어야 합니다.
+이때의 동작을 LangSmith로 확인합니다.
 
-- [AWS Account 생성](https://repost.aws/ko/knowledge-center/create-and-activate-aws-account)에 따라 계정을 준비합니다.
-
-### CDK를 이용한 인프라 설치
-
-본 실습에서는 us-west-2 리전을 사용합니다. [인프라 설치](./deployment.md)에 따라 CDK로 인프라 설치를 진행합니다. 
+![image](https://github.com/user-attachments/assets/003efb54-d02a-414c-837a-207491cf4007)
 
 
-## 실행결과
-
-채팅 메뉴에서 파일을 선택하여 업로드를 수행합니다. 여기에서는 테스트 계정의 quota 이슈로 5개의 파일로 나눠서 테스트를 수행하였습니다.
-
-[2023_11_KICE_1.json](./contents/2023_11_KICE_1.json)을 다운로드 후에 채팅창 하단의 파일 업로드 버튼을 선택하여 파일을 업로드한 후에 결과를 확인합니다. 
-
-![image](https://github.com/user-attachments/assets/c6950a3c-6b38-4305-a752-f7ab81b1e1a6)
 
 
 ## 결론
