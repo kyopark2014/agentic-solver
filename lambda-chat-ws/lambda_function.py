@@ -2972,7 +2972,7 @@ def solve_problems_using_parallel_processing(connectionId, requestId, json_data)
     processes = []
     parent_connections = []
     
-    total_idx = len(json_data)+1
+    total_idx = len(json_data)
     print('total_idx: ', total_idx)
     
     messages = []
