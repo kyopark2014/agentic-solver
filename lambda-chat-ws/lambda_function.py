@@ -3042,7 +3042,7 @@ def solve_problems(conn, connectionId, requestId, paragraph, problems, idx, tota
         answer = problem["answer"]
         score = problem["score"]
             
-        result = solve_CSAT_Korean(connectionId, requestId+str(idx)+str(n), paragraph, question, question_plus, choices, idx+n*2, idx)
+        result = solve_CSAT_Korean(connectionId, requestId+str(idx)+str(n), paragraph, question, question_plus, choices, idx+n+2*n, idx)
         print('result: ', result)
         
         output = result[result.find('<result>')+8:result.find('</result>')]
@@ -3077,6 +3077,8 @@ def solve_problems(conn, connectionId, requestId, paragraph, problems, idx, tota
             
     print('earn_score: ', earn_score)
     print('message: ', message)
+    
+    sendResultMessage(connectionId, requestId+str(idx), message)
     
     conn.send({
         "idx": idx, 
