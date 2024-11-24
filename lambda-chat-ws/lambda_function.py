@@ -2632,7 +2632,7 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
             "{plan}"
             "</original_plan>"
 
-            "안료한 단계는 아래와 같습니다."
+            "완료한 단계는 아래와 같습니다."
             "<past_steps>"
             "{past_steps}"
             "</past_steps>"
