@@ -2797,7 +2797,7 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         return workflow.compile()
 
     # run graph
-    selection = idx+n+2*n
+    selection = idx+nth+2*nth
     if selection>=length_of_models:
         selection-=length_of_models
     print('selection: ', selection)
