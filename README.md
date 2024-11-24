@@ -134,6 +134,9 @@ def replan_node(state: State, config):
 
 ![image](https://github.com/user-attachments/assets/90d7da8e-1b47-437e-8669-7fe188a7a06c)
 
+실패문제를 보면 아래와 같습니다. 
+
+![image](https://github.com/user-attachments/assets/48eba351-0a63-4297-bc3c-bdd191e45c85)
 
 ### 수능 한국사 문제
 
