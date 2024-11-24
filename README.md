@@ -130,6 +130,9 @@ def replan_node(state: State, config):
 
 ![image](https://github.com/user-attachments/assets/fa02aadd-bcca-4c79-903d-fef19f87e670)
 
+[2023_11_KICE_3.json](./contents/2023_11_KICE_3.json)에 대한 결과는 아래와 같습니다.
+
+![image](https://github.com/user-attachments/assets/90d7da8e-1b47-437e-8669-7fe188a7a06c)
 
 
 ### 수능 한국사 문제
