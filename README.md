@@ -1,5 +1,11 @@
 # LangGraph를 이용하여 구현된 Agentic Workflow를 이용하여 복잡한 문제 해결하기
 
+<p align="left">
+    <a href="https://hits.seeyoufarm.com"><img src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2Fkyopark2014%2Flanggraph-agent&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false)](https://hits.seeyoufarm.com"/></a>
+    <img alt="License" src="https://img.shields.io/badge/LICENSE-MIT-green">
+</p>
+
+
 여기에서는 LangGraph를 이용하여 plan and execute 패턴의 agentic workflow를 구현하고, 이를 이용하여 복잡한 문제를 해결하는 방법에 대해 설명합니다. 
 
 ## 수능 국어 문제 
@@ -93,10 +99,11 @@ def replan_node(state: State, config):
 
 ![image](https://github.com/user-attachments/assets/003efb54-d02a-414c-837a-207491cf4007)
 
+### 수능 국어 문제
 
-#### 2023년 한국사 문제
+### 수능 한국사 문제
 
-[한국사 영역의 시험문제](https://legendstudy.com/1574)입니다.
+여기에서 [한국사 영역의 시험문제](https://legendstudy.com/1574)의 한국사 문제를 참조하였습니다. 한국사의 경우는 인터넷 검색을 통해 지문에 대한 정보를 조회하고 이를 이용해 답변을 수행합니다. 한국사에 대한 자료를 RAG를 구현하면 더 정확한 검색 결과를 얻을 수 있지만 여기에서는 plan and execute 방식의 agentic workflow 패턴을 이용해 복잡한 workflow를 해결하는 방법에 대해 동작을 테스트 하기 위하여 인터넷 검색만을 활용하였습니다.
 
 ```text
 11. 다음 A, B 대화의 배경으로 가장 적절한 것은? 
@@ -123,6 +130,8 @@ LangSmith를 보면 아래와 같이 1회 replan후 결과를 얻었습니다.
 
 ![image](https://github.com/user-attachments/assets/1ff7e107-ae54-48c3-9401-a6f2b6fb1e71)
 
+이때의 실행 단계는 아래와 같습니다.
+
 ```java
 {
   "steps": [
@@ -135,10 +144,38 @@ LangSmith를 보면 아래와 같이 1회 replan후 결과를 얻었습니다.
 }
 ```
 
-```java
-1. 대화의 배경이 될 수 있는 역사적 사건 검토
-2. 제시된 선택지 분석
-3. 역사적 배경 확인
-4. 최종 답안 선택
-```
 
+## 직접 실습 해보기
+
+### 사전 준비 사항
+
+이 솔루션을 사용하기 위해서는 사전에 아래와 같은 준비가 되어야 합니다.
+
+- [AWS Account 생성](https://repost.aws/ko/knowledge-center/create-and-activate-aws-account)에 따라 계정을 준비합니다.
+
+### CDK를 이용한 인프라 설치
+
+본 실습에서는 us-west-2 리전을 사용합니다. [인프라 설치](./deployment.md)에 따라 CDK로 인프라 설치를 진행합니다. 
+
+
+## 실행결과
+
+채팅 메뉴에서 파일을 선택하여 업로드를 수행합니다.
+
+
+
+## 결론
+
+여기에서는 LangGraph를 이용하여 workflow 방식의 agent를 구현하였습니다. 이를 통해 복잡한 문제를 plan and execute 방식으로 해결하였습니다. 
+
+## 리소스 정리하기 
+
+더이상 인프라를 사용하지 않는 경우에 아래처럼 모든 리소스를 삭제할 수 있습니다. 
+
+1) [API Gateway Console](https://us-west-2.console.aws.amazon.com/apigateway/main/apis?region=us-west-2)로 접속하여 "api-agentic-solver", "api-chatbot-for-agentic-solver"을 삭제합니다.
+
+2) [Cloud9 Console](https://us-west-2.console.aws.amazon.com/cloud9control/home?region=us-west-2#/)에 접속하여 아래의 명령어로 전체 삭제를 합니다.
+
+```text
+cd ~/environment/agentic-solver/cdk-agentic-solver/ && cdk destroy --all
+```
