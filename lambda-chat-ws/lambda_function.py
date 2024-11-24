@@ -2351,8 +2351,12 @@ def run_plan_and_exeucute(connectionId, requestId, query):
 #########################################################
 def get_llm(select):
     if multi_region == 'enable':
+        if select>=len(multi_region_models):
+            select -= len(multi_region_models)
         profile = multi_region_models[select]
     else:
+        if select>=len(LLM_for_chat):
+            select -= len(LLM_for_chat)
         profile = LLM_for_chat[select]
     
     bedrock_region =  profile['bedrock_region']
