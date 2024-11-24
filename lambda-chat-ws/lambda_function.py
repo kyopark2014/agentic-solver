@@ -2394,7 +2394,7 @@ def get_llm(select):
     
     return chat, select
 
-def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plus, choices, selection, idx):    
+def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plus, choices, idx, nth):    
     class State(TypedDict):
         plan: list[str]
         past_steps: Annotated[List[Tuple], operator.add]
@@ -2419,7 +2419,8 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         print('list_choices: ', list_choices)    
         
         idx = config.get("configurable", {}).get("idx")
-        update_state_message(f"planning...{idx}", config)
+        nth = config.get("configurable", {}).get("nth")
+        update_state_message(f"planning... ({idx}-{nth})", config)
         
         system = (
             "당신은 복잡한 문제를 해결하기 위해 step by step plan을 생성하는 AI agent입니다."                
@@ -2492,7 +2493,8 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         # print('list_choices: ', list_choices)    
                 
         idx = config.get("configurable", {}).get("idx")
-        update_state_message(f"executing...{idx}", config)
+        nth = config.get("configurable", {}).get("nth")
+        update_state_message(f"executing... ({idx}-{nth})", config)
         
         task = plan[0]
         print('task: ', task)                        
@@ -2596,7 +2598,8 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         # print('list_choices: ', list_choices)    
         
         idx = config.get("configurable", {}).get("idx")
-        update_state_message(f"replanning...{idx}", config)
+        nth = config.get("configurable", {}).get("nth")
+        update_state_message(f"replanning... ({idx}-{nth})", config)
         
         if len(state["plan"])==0:
             return {"plan": []}
@@ -2696,7 +2699,8 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         print('#### final_answer ####')
         
         idx = config.get("configurable", {}).get("idx")
-        update_state_message(f"finalizing...{idx}", config)
+        nth = config.get("configurable", {}).get("nth")
+        update_state_message(f"finalizing... ({idx}-{nth})", config)
         
         if len(state["plan"])==0:
             return {"answer": state["answer"]}
@@ -2793,6 +2797,7 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         return workflow.compile()
 
     # run graph
+    selection = idx+n+2*n
     if selection>=length_of_models:
         selection-=length_of_models
     print('selection: ', selection)
@@ -2810,6 +2815,7 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
     }
     config = {
         "idx": idx,
+        "nth": nth,
         "recursion_limit": 50,
         "requestId": requestId,
         "connectionId": connectionId
@@ -3046,7 +3052,7 @@ def solve_problems(conn, connectionId, requestId, paragraph, problems, idx, tota
         answer = problem["answer"]
         score = problem["score"]
             
-        result = solve_CSAT_Korean(connectionId, requestId+str(idx)+str(n), paragraph, question, question_plus, choices, idx+n+2*n, idx)
+        result = solve_CSAT_Korean(connectionId, requestId+str(idx)+str(n), paragraph, question, question_plus, choices, idx, n)
         print('result: ', result)
         
         output = result[result.find('<result>')+8:result.find('</result>')]
