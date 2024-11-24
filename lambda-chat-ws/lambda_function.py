@@ -2692,7 +2692,7 @@ def solve_CSAT_Korean(connectionId, requestId, paragraph, question, question_plu
         
         return next
         
-    def final_answer(state: State) -> str:
+    def final_answer(state: State, config) -> str:
         print('#### final_answer ####')
         
         idx = config.get("configurable", {}).get("idx")
