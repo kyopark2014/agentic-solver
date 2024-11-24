@@ -25,77 +25,330 @@
 
 <img width="652" alt="image" src="https://github.com/user-attachments/assets/d873497d-b7ec-4043-9a1f-ebe37c1c2bcf">
 
-## Plan and Exeuction pattern
 
-plan and exeuction pattern을 이용하면 복잡한 문제를 step by step으로 처리할 수 있습니다.
+### Agentic Workflow 구현하기
+
+plan and exeuction pattern을 이용하면 복잡한 문제를 step by step으로 처리할 수 있습니다. LangGraph를 이용해 agentic workflow를 구현하는 것은 [LangGraph로 구현하는 Agentic Workflow](https://github.com/kyopark2014/langgraph-agent?tab=readme-ov-file#plan-and-execute)을 참조합니다. Workflow의 노드들간에 데이터 교환을 위해 State 클래스를 정의합니다. 
+
+```python
+class State(TypedDict):
+    plan: list[str]
+    past_steps: Annotated[List[Tuple], operator.add]
+    info: Annotated[List[Tuple], operator.add]
+    paragraph: str
+    question: str
+    question_plus: str
+    choices: list[str]
+    answer: str
+    select: int
+```
+
+
+Agentic workflow를 아래와 같이 정의합니다. 여기에는 plan, execute, replan, final_answer로 노드를 생성하고 한개의 conditional edge인 should_end를 가지고 있습니다. 
+
+```python
+def buildPlanAndExecute():
+    workflow = StateGraph(State)
+    workflow.add_node("planner", plan_node)
+    workflow.add_node("executor", execute_node)
+    workflow.add_node("replaner", replan_node)
+    workflow.add_node("final_answer", final_answer)
+    
+    workflow.set_entry_point("planner")
+    workflow.add_edge("planner", "executor")
+    workflow.add_edge("executor", "replaner")
+    workflow.add_conditional_edges(
+        "replaner",
+        should_end,
+        {
+            "continue": "executor",
+            "end": "final_answer",
+        },
+    )
+    workflow.add_edge("final_answer", END)
+
+    return workflow.compile()
+```
+
+아래의 activity diagram을 이용하면 복잡한 workflow의 동작을 쉽게 이해할 수 있습니다. 
 
 ![image](https://github.com/user-attachments/assets/301dae63-30aa-4ebc-b434-fb942fa54e85)
 
 
-### Replan
 
-Replan node는 아래와 같이 state를 가지고 새로운 plan을 생성합니다. state에는 이전 단계 응답 전체가 있습니다.
+수능 국어 문제에서는 지문인 paragraph가 주어지고 경우에 따라 보기가 주어지고, 보통 5개정도의 선택지가 주어집니다. 아래와 같이 step by step형태로 계획을 세울수 있도록 프롬프트를 준비합니다. 각 단계를 list로 관리하기 위하여 아래와 같이 한줄로 질문을 해결하는 단계를 생성하도록 예제를 이용해 프롬프트를 작성하였습니다. 
+
+```python
+def plan_node(state: State, config):
+    print("###### plan ######")
+            
+    list_choices = ""
+    choices = state["choices"]
+    for i, choice in enumerate(choices):
+        list_choices += f"({i+1}) {choice}\n"
+    
+    system = (
+        "당신은 복잡한 문제를 해결하기 위해 step by step plan을 생성하는 AI agent입니다."                
+        
+        "문제를 충분히 이해하고, 문제 해결을 위한 계획을 다음 형식으로 4단계 이하의 계획을 세웁니다."                
+        "각 단계는 반드시 한줄의 문장으로 AI agent가 수행할 내용을 명확히 나타냅니다."
+        "1. [질문을 해결하기 위한 단계]"
+        "2. [질문을 해결하기 위한 단계]"
+        "..."                
+    )
+    
+    human = (
+        "<paragraph> tag의 주어진 문장을 참조하여 <question> tag의 질문에 대한 적절한 답변을 <choice> tag안에서 선택하가 위한 단계별 계획을 세우세요."
+        "단계별 계획에 <result> tag를 붙여주세요."
+        
+        "주어진 문장:"
+        "<paragraph>"
+        "{paragraph}"
+        "</paragraph>"
+
+        "질문:"
+        "<question>"
+        "{question}"
+                        
+        "{question_plus}"                
+        "</question>"
+
+        "선택지:"
+        "<choices>"
+        "{list_choices}"
+        "</choices>"
+    )
+                        
+    planner_prompt = ChatPromptTemplate.from_messages(
+        [
+            ("system", system),
+            ("human", human),
+        ]
+    )
+    chat, select = get_llm(state["select"])
+    planner = planner_prompt | chat
+    response = planner.invoke({
+        "paragraph": paragraph,
+        "question": question,
+        "question_plus": question_plus,
+        "list_choices": list_choices
+    })
+    print('response.content: ', response.content)
+    result = response.content
+    output = result[result.find('<result>')+8:result.find('</result>')]
+    
+    plan = output.strip().replace('\n\n', '\n')
+    planning_steps = plan.split('\n')
+    print('planning_steps: ', planning_steps)
+    
+    return {
+        "plan": planning_steps,
+        "select": select
+    }
+```
+
+세워진 계획에서 첫번째 계획을 수행합니다. 여기서 주어진 문제를 paragraph, question, choice tag를 이용해 설명하고, 첫번째 계획을 task로 수행합니다. 이때 LLM이 충분히 생각하도록 모든 선택지에 대한 근거를 설명하도록 요청하고 선택지에서 한개를 고르도록 요청합니다. Agentic workflow는 결과가 나올때까지 반복하게 되어서 수행시간이 길어집니다. 수행시간을 단축하기 위하여 LLM이 현재의 선택에 대한 신뢰도(confidence)를 제시하도록 하고, 최고 신뢰도(여기서는 5)인 경우에 실행을 완료하도록 합니다. 신뢰도가 최고값을 가지면 계획(plan)을 비워서 다음 노드에서 완료되도록 합니다. 
+
+```python
+def execute_node(state: State, config):
+    print("###### execute ######")
+    plan = state["plan"]
+    
+    list_choices = ""
+    choices = state["choices"]
+    for i, choice in enumerate(choices):
+        list_choices += f"({i+1}) {choice}\n"
+    
+    task = plan[0]
+    print('task: ', task)                        
+    
+    context = ""
+    for info in state['info']:
+        if isinstance(info, HumanMessage):
+            context += info.content+"\n"
+        else:
+            context += info.content+"\n\n"
+                    
+    system = (
+        "당신은 국어 수능문제를 푸는 일타강사입니다."
+    )
+    human = (
+        "당신의 목표는 <paragraph> tag의 주어진 문장으로 부터 <question> tag의 주어진 질문에 대한 적절한 답변을 <choice> tag의 선택지에서 찾는것입니다."
+        "<previous_result> tag에 있는 이전 단계의 결과를 참조하여, <task> tag의 실행 단계를 수행하고 적절한 답변을 구합니다."
+        "문제를 풀이할 때 모든 선택지마다 근거를 주어진 문장에서 찾아 설명하세요."
+        "선택지의 주요 단어들의 의미를 주어진 문장과 비교해서 꼼꼼히 차이점을 찾습니다."
+        "질문에 대한 답을 선택지 중에 한 개만 골라서 대답해야 합니다."
+        "최종 결과의 번호에 <result> tag를 붙여주세요."
+        "최종 결과의 신뢰도를 1-5 사이의 숫자로 나타냅니다. 신뢰되는 <confidence> tag를 붙입니다."  
+                            
+        "주어진 문장:"
+        "<paragraph>"
+        "{paragraph}"
+        "</paragraph>"
+            
+        "주어진 질문:"
+        "<question>"
+        "{question}"
+            
+        "{question_plus}"
+        "</question>"
+        
+        "선택지:"
+        "<choices>"
+        "{list_choices}"
+        "</choices>"
+        
+        "이전 단계의 결과"
+        "<previous_result>"
+        "{info}"
+        "</previous_result>"
+
+        "실행 단계:"
+        "<task>"
+        "{task}"
+        "</task>"
+    )
+    prompt = ChatPromptTemplate.from_messages(
+        [
+            ("system", system),
+            ("human", human),
+        ]
+    )
+    chat, select = get_llm(state["select"])
+    chain = prompt | chat                        
+    response = chain.invoke({
+        "paragraph": state["paragraph"],
+        "question": state["question"],
+        "question_plus": state["question_plus"],
+        "list_choices": list_choices,
+        "info": context,
+        "task": task
+    })
+    print('response.content: ', response.content)
+    
+    result = response.content
+    confidence = result[result.find('<confidence>')+12:result.find('</confidence>')]
+    print('confidence: ', confidence)
+    
+    transaction = [HumanMessage(content=task), AIMessage(content=result)]
+    
+    if confidence == "5":
+        plan = []
+        answer = result
+    else:
+        plan = state["plan"]
+        answer = ""
+    
+    return {
+        "plan": plan,
+        "info": transaction,
+        "past_steps": [task],
+        "answer": answer,
+        "select": select
+    }
+```
+
+처음 생성한 계획을 이후 실행 과정에서 업데이트하면 더 좋은 결과를 얻을 있습니다. Execution 노드에서 첫번째 계획을 세웠으므로 replan 노드에서는 실행한 계획을 제외한 계획을 업데이트 합니다. 현재의 목표를 remind 시키고 나서, 원래의 계획과 완료된 계획을 알려주고 새로운 계획을 구성하도록 프롬프트를 구성합니다. 수정된 계획을 프롬프트를 이용해 한줄씩으로 정의하도록 하고 state의 plan을 업데이트 합니다.  
 
 ```python
 def replan_node(state: State, config):
-    update_state_message("replanning...", config)
+    print('#### replan ####')            
+    list_choices = ""
+    choices = state["choices"]
+    for i, choice in enumerate(choices):
+        list_choices += f"({i+1}) {choice}\n"
     
-    replanner_prompt = ChatPromptTemplate.from_template(
-        "For the given objective, come up with a simple step by step plan."
-        "This plan should involve individual tasks, that if executed correctly will yield the correct answer."
-        "Do not add any superfluous steps."
-        "The result of the final step should be the final answer."
-        "Make sure that each step has all the information needed - do not skip steps."
-
-        "Your objective was this:"
-        "{input}"
-
-        "Your original plan was this:"
-        "{plan}"
-
-        "You have currently done the follow steps:"
-        "{past_steps}"
-
-        "Update your plan accordingly."
-        "If no more steps are needed and you can return to the user, then respond with that."
-        "Otherwise, fill out the plan."
-        "Only add steps to the plan that still NEED to be done. Do not return previously done steps as part of the plan."
-    )
+    if len(state["plan"])==0:
+        return {"plan": []}
     
-    chat = get_chat()
-    replanner = replanner_prompt | chat
-    
-    output = replanner.invoke(state)
-    
-    result = None
-    for attempt in range(5):
-        chat = get_chat()
-        structured_llm = chat.with_structured_output(Act, include_raw=True)    
-        info = structured_llm.invoke(output.content)
-        print(f'attempt: {attempt}, info: {info}')
+    system = (
+        "당신은 복잡한 문제를 해결하기 위해 step by step plan을 생성하는 AI agent입니다."
+    )        
+    human = (
+        "당신의 목표는 <paragraph> tag의 주어진 문장으로 부터 <question> tag의 주어진 질문에 대한 적절한 답변을 <choice> tag안에서 선택지에서 찾는것입니다."
         
-        if not info['parsed'] == None:
-            result = info['parsed']
-            break
-                
-    if result == None:
-        return {"response": "답을 찾지 못하였습니다. 다시 시도해주세요."}
+        "주어진 문장:"
+        "<paragraph>"
+        "{paragraph}"
+        "</paragraph>"
+        
+        "주어진 질문:"
+        "<question>"
+        "{question}"
+        
+        "{question_plus}"
+        "</question>"
+        
+        "선택지:"
+        "<list_choices>"
+        "{list_choices}"
+        "</list_choices>"
+        
+        "당신의 원래 계획은 아래와 같습니다." 
+        "<original_plan>"                
+        "{plan}"
+        "</original_plan>"
+
+        "완료한 단계는 아래와 같습니다."
+        "<past_steps>"
+        "{past_steps}"
+        "</past_steps>"
+        
+        "당신은 <original_plan> tag의 원래 계획을 상황에 맞게 수정하세요."
+        "계획에 아직 해야 할 단계만 추가하세요. 이전에 완료한 단계는 계획에 포함하지 마세요."                
+        "수정된 계획에는 <plan> tag를 붙여주세요."
+        "만약 더 이상 계획을 세우지 않아도 <question> tag의 주어진 질문에 답변할 있다면, 최종 결과로 <question>에 대한 답변을 <result> tag를 붙여 전달합니다."
+        
+        "수정된 계획의 형식은 아래와 같습니다."
+        "각 단계는 반드시 한줄의 문장으로 AI agent가 수행할 내용을 명확히 나타냅니다."
+        "1. [질문을 해결하기 위한 단계]"
+        "2. [질문을 해결하기 위한 단계]"
+        "..."         
+    )                    
+    replanner_prompt = ChatPromptTemplate.from_messages(
+        [
+            ("system", system),
+            ("human", human),
+        ]
+    )        
+    chat, select = get_llm(state["select"])
+    replanner = replanner_prompt | chat        
+    response = replanner.invoke({
+        "paragraph": state["paragraph"],
+        "question_plus": state["question_plus"],
+        "question": state["question"],
+        "list_choices": list_choices,
+        "plan": state["plan"],
+        "past_steps": state["past_steps"]
+    })
+    result = response.content
+    
+    if result.find('<plan>') == -1:
+        return {"plan":[], "select":select, "answer":result}
     else:
-        if isinstance(result.action, Response):  # "parsed":"Act(action=Response(response="
-            return {
-                "response": result.action.response,
-                "info": [result.action.response]
-            }
-        else:  # "parsed":"Act(action=Plan(steps=
-            return {"plan": result.action.steps}    
+        output = result[result.find('<plan>')+6:result.find('</plan>')]
+        
+        plans = output.strip().replace('\n\n', '\n')
+        planning_steps = plans.split('\n')
+    
+        return {"plan": planning_steps, "select":select}
 ```
 
-이때, [flow-logs.md](https://github.com/kyopark2014/agentic-solver/blob/main/flow-logs.md)와 같이 replan의 결과로 Response 또는 Plan을 받게 됩니다.
+Conditional edge인 should_end에서는 plan을 보고 계속 실행할지 종료할지를 결정합니다. 
 
+```python
+def should_end(state: State) -> Literal["continue", "end"]:
+    print('#### should_end ####')    
+    plan = state["plan"]
+    print('plan: ', plan)
+    if len(plan)<=1:
+        next = "end"
+    else:
+        next = "continue"
+    
+    return next
+```
 
-## Confidence의 활용
- 
- 단계별 진행시 LLM이 결과에 대해 확실하다면 다음 단계 진행없이 종료할 수 있습니다. 
 
 ## 직접 실습 해보기
 
