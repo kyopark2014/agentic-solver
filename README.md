@@ -7,7 +7,7 @@
 
 
 
-여기에서는 LangGraph를 이용하여 plan and execute 패턴의 agentic workflow를 구현하고, 이를 이용하여 복잡한 문제를 해결하는 방법에 대해 설명합니다. 
+여기에서는 LangGraph를 이용하여 plan and execute 패턴의 agentic workflow를 구현하고, 이를 이용하여 복잡한 문제를 해결하는 방법에 대해 설명합니다. LLM의 한글 능력 및 지능적 분석 능력을 확인하기 위하여 대학 수학 능력 시험중에 국어 영역에 대해 테스트를 수행하였습니다.
 
 ## 수능 국어 문제 
 
