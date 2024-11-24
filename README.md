@@ -13,10 +13,9 @@
 
 ### 복잡한 문제로 수능 국어를 선택한 이유
 
-수학 능력 시험의 국어는 LLM을 이용한 어플리케이션의 한국어에 대한 이해를 측정하기 좋은 방법입니다. [지문과 선택지-화법과 작문](https://github.com/NomaDamas/KICE_slayer_AI_Korean/blob/master/data/2023_11_KICE.json)은 json포맷으로 문제와 답을 제공하고 있습니다. 또한, [수능 문제의 경우에 정답이 알려져있고 상세한 해설서](https://m.blog.naver.com/awesome-2030/222931282476)도 결과를 확인할 때에 참고할 수 있습니다. [2023년 수능의 국어(화법과 작문)의 1등급 컷](https://www.nextplay.kr/news/articleView.html?idxno=4617)은 92점입니다. 
+수학 능력 시험의 국어 영역은 LLM을 이용한 어플리케이션의 한국어에 대한 이해를 측정하기 좋은 주제입니다. [지문과 선택지-화법과 작문](https://github.com/NomaDamas/KICE_slayer_AI_Korean/blob/master/data/2023_11_KICE.json)은 json포맷으로 문제와 답을 제공하고 있습니다. 또한, [수능 문제의 경우에 정답이 알려져있고 상세한 해설서](https://m.blog.naver.com/awesome-2030/222931282476)도 결과를 확인할 때에 참고할 수 있습니다. 또한, [2023년 수능의 국어(화법과 작문)의 1등급 컷](https://www.nextplay.kr/news/articleView.html?idxno=4617)은 92점입니다. 
 
-여기에서는 [Anthropic의 Claude Sonnet 3.5](https://www.anthropic.com/news/claude-3-5-sonnet)와 LangGraph를 구현한 plan and execute 패턴의 agentic workflow를 이용하여 92점을 얻었습니다. 
-
+여기에서는 [Anthropic의 Claude Sonnet 3.5](https://www.anthropic.com/news/claude-3-5-sonnet)와 [LangGraph를 구현한 plan and execute 패턴](https://github.com/kyopark2014/langgraph-agent?tab=readme-ov-file#plan-and-execute)의 agentic workflow를 이용하여 92점을 얻었습니다. 
 
 
 ## 전체 Architecture
@@ -28,7 +27,7 @@
 
 ### Agentic Workflow 구현하기
 
-plan and exeuction pattern을 이용하면 복잡한 문제를 step by step으로 처리할 수 있습니다. LangGraph를 이용해 agentic workflow를 구현하는 것은 [LangGraph로 구현하는 Agentic Workflow](https://github.com/kyopark2014/langgraph-agent?tab=readme-ov-file#plan-and-execute)을 참조합니다. Workflow의 노드들간에 데이터 교환을 위해 State 클래스를 정의합니다. 
+Plan and exeuction 패턴을 이용하면 복잡한 문제를 step by step으로 처리할 수 있습니다. 이때 LangGraph를 이용해 agentic workflow를 구현하는 것은 [LangGraph로 구현하는 Agentic Workflow](https://github.com/kyopark2014/langgraph-agent?tab=readme-ov-file#plan-and-execute)을 참조합니다. Workflow의 노드들 간에 데이터 교환을 위해 State 클래스를 정의합니다. 
 
 ```python
 class State(TypedDict):
@@ -133,13 +132,11 @@ def plan_node(state: State, config):
         "question_plus": question_plus,
         "list_choices": list_choices
     })
-    print('response.content: ', response.content)
     result = response.content
     output = result[result.find('<result>')+8:result.find('</result>')]
     
     plan = output.strip().replace('\n\n', '\n')
     planning_steps = plan.split('\n')
-    print('planning_steps: ', planning_steps)
     
     return {
         "plan": planning_steps,
@@ -160,8 +157,6 @@ def execute_node(state: State, config):
         list_choices += f"({i+1}) {choice}\n"
     
     task = plan[0]
-    print('task: ', task)                        
-    
     context = ""
     for info in state['info']:
         if isinstance(info, HumanMessage):
@@ -224,12 +219,9 @@ def execute_node(state: State, config):
         "info": context,
         "task": task
     })
-    print('response.content: ', response.content)
     
     result = response.content
-    confidence = result[result.find('<confidence>')+12:result.find('</confidence>')]
-    print('confidence: ', confidence)
-    
+    confidence = result[result.find('<confidence>')+12:result.find('</confidence>')]    
     transaction = [HumanMessage(content=task), AIMessage(content=result)]
     
     if confidence == "5":
@@ -248,7 +240,7 @@ def execute_node(state: State, config):
     }
 ```
 
-처음 생성한 계획을 이후 실행 과정에서 업데이트하면 더 좋은 결과를 얻을 있습니다. Execution 노드에서 첫번째 계획을 세웠으므로 replan 노드에서는 실행한 계획을 제외한 계획을 업데이트 합니다. 현재의 목표를 remind 시키고 나서, 원래의 계획과 완료된 계획을 알려주고 새로운 계획을 구성하도록 프롬프트를 구성합니다. 수정된 계획을 프롬프트를 이용해 한줄씩으로 정의하도록 하고 state의 plan을 업데이트 합니다.  
+처음 생성한 계획을 이후 실행 과정에서 업데이트하면 더 좋은 결과를 얻을 있습니다. Execution 노드에서 첫번째 계획을 세웠으므로 replan 노드에서는 실행한 계획을 제외한 계획을 업데이트 합니다. 현재의 목표를 remind 시키고 나서, 원래의 계획과 완료된 계획을 알려주고 새로운 계획을 구성하도록 프롬프트를 구성합니다. 수정된 계획을 프롬프트를 이용해 한줄씩으로 정의하도록 하고 state의 plan을 업데이트 합니다.  
 
 ```python
 def replan_node(state: State, config):
@@ -368,20 +360,18 @@ def should_end(state: State) -> Literal["continue", "end"]:
 
 ### 수능 국어 문제
 
-채팅 메뉴에서 파일을 선택하여 업로드를 수행합니다. 여기에서는 테스트 계정의 quota 이슈로 5개의 파일로 나눠서 테스트를 수행하였습니다.
+채팅 메뉴에서 파일을 선택하여 업로드를 수행합니다. 여기에서는 테스트 계정의 quota 한계로 [원본 파일](https://github.com/NomaDamas/KICE_slayer_AI_Korean/blob/master/data/2023_11_KICE.json)을 6개의 파일로 나눠서 테스트를 수행하였습니다.
 
-[2023_11_KICE_1.json](./contents/2023_11_KICE_1.json)을 다운로드 후에 채팅창 하단의 파일 업로드 버튼을 선택하여 파일을 업로드한 후에 결과를 확인합니다. 
+[2023_11_KICE_1.json](./contents/2023_11_KICE_1.json)을 다운로드 후에 채팅창 하단의 파일 업로드 버튼을 선택하여 파일을 업로드한 후에 결과를 확인합니다. 아래와 같이 전체 문제를 맞추었습니다. 
 
 ![image](https://github.com/user-attachments/assets/c6950a3c-6b38-4305-a752-f7ab81b1e1a6)
 
 
-#### 실패 문제의 분석
-
-[2023_11_KICE_2.json](./contents/2023_11_KICE_2.json)에 대한 결과는 아래와 같습니다.
+[2023_11_KICE_2.json](./contents/2023_11_KICE_2.json)에 대한 결과는 아래와 같습니다. 2문제에서 오답이 나왔습니다. 
 
 ![image](https://github.com/user-attachments/assets/20836228-5738-45e3-b354-c18782566495)
 
-15번 문제의 경우에는 본문의 그래프에 대한 이해가 필요하지만 json 파일에는 그림 파일에 대한 정보를 제공하지 않았습니다. 따라서 판단 불가로 처리되어서 답을 구하지 못하였습니다.
+오답인 15번 문제의 경우에는 본문의 그래프에 대한 이해가 필요하지만 json 파일에는 그림 파일에 대한 정보를 제공하지 않았습니다. 따라서 판단 불가로 처리되어서 답을 구하지 못하였습니다.
 
 ![noname](https://github.com/user-attachments/assets/d1e0b6b6-de74-41b7-a813-16cef48873b6)
 
@@ -389,15 +379,16 @@ def should_end(state: State) -> Literal["continue", "end"]:
 
 ![image](https://github.com/user-attachments/assets/fa02aadd-bcca-4c79-903d-fef19f87e670)
 
-[2023_11_KICE_3.json](./contents/2023_11_KICE_3.json)에 대한 결과는 아래와 같습니다.
+
+[2023_11_KICE_3.json](./contents/2023_11_KICE_3.json)에 대한 결과는 아래와 같습니다. 
 
 ![image](https://github.com/user-attachments/assets/90d7da8e-1b47-437e-8669-7fe188a7a06c)
 
-실패문제를 보면 아래와 같습니다. 
+오답 문제를 보면 아래와 같습니다. 
 
 ![image](https://github.com/user-attachments/assets/48eba351-0a63-4297-bc3c-bdd191e45c85)
 
-로그상 실패의 이유는 아래와 같습니다. (1)과 (3)을 적절하지 않다고 판단하였는데, (1)이 더 부적절하다고 판단한것으로 보여집니다. 도산십이곡의 초야우생을 알고 있었다면 정답을 선택할 수 있었을것으로 보여집니다.
+로그로 실패한 이유를 알아보면 아래와 같습니다. 선택지인 (1)과 (3)이 적절하지 않다고 판단하였는데, (1)이 더 부적절하다고 판단한것으로 보여집니다. 도산십이곡의 초야우생을 알고 있었다면 정답을 선택할 수 있었을것으로 보여집니다.
 
 ```text
 <보기>의 내용을 바탕으로 (가)와 (나)의 특징을 다음과 같이 파악할 수 있습니다:
@@ -418,20 +409,21 @@ def should_end(state: State) -> Literal["continue", "end"]:
 분석 결과, (1)번 선택지가 가장 적절하지 않습니다. '초야우생'이라는 표현이 반드시 이상적 공간에 존재하는 화자를 나타낸다고 볼 수 없으며, 이는 <보기>의 내용과도 직접적인 연관성이 없기 때문입니다.
 ```
 
-[2023_11_KICE_4.json](./contents/2023_11_KICE_4.json)에 대한 결과는 아래와 같습니다.
+[2023_11_KICE_4.json](./contents/2023_11_KICE_4.json)에 대한 결과는 아래와 같습니다. 모든 문제를 맞추었습니다. 
 
 ![image](https://github.com/user-attachments/assets/43d62f6d-5482-43e5-acbf-ca72efdbfb9b)
 
 
-[2023_11_KICE_5.json](./contents/2023_11_KICE_5.json)에 대한 결과는 아래와 같습니다.
+[2023_11_KICE_5.json](./contents/2023_11_KICE_5.json)에 대한 결과는 아래와 같습니다. 모두 정답을 맞추었습니다. 
 
 ![image](https://github.com/user-attachments/assets/d1513b21-e95b-46c3-bcb7-d1314eab2206)
 
 
-[2023_11_KICE_6.json](./contents/2023_11_KICE_6.json)에 대한 결과는 아래와 같습니다.
+[2023_11_KICE_6.json](./contents/2023_11_KICE_6.json)에 대한 결과는 아래와 같습니다. 모두 정답입니다. 
 
 ![image](https://github.com/user-attachments/assets/46471134-08ca-4b70-9cbc-92a27333ac0e)
 
+이와 같이 전체 100점중에 92점을 획득하였습니다. 문제 점수에는 LLM의 지적능력이 매우 중요하며 프롬프트를 이용해 LLM이 문제에 대해 충분히 생각하도록 유도하여야 합니다. 
 
 ### 수능 한국사 문제
 
@@ -487,11 +479,9 @@ LangSmith를 보면 아래와 같이 1회 replan후 결과를 얻었습니다.
 ![image](https://github.com/user-attachments/assets/003efb54-d02a-414c-837a-207491cf4007)
 
 
-
-
 ## 결론
 
-여기에서는 LangGraph를 이용하여 workflow 방식의 agent를 구현하였습니다. 이를 통해 복잡한 문제를 plan and execute 방식으로 해결하였습니다. 
+여기에서는 LangGraph를 이용하여 agentic workflow 방식의 agent를 구현하였습니다. 이를 통해 복잡한 문제를 plan and execute 패턴으로 해결하였습니다. 이 패턴은 CoT (Chain of Thought)처럼 문제를 step by step으로 풀도록 유도함으로써 복잡한 문제의 의미를 파악하여 더 좋은 결과를 얻을 수 있습니다. 이때 반복적인 동작이 필수적으로 요청되므로 zero shot 방식에 비하여 수행시간이 증가합니다. 여기에서는 multi region을 이용한 병렬처리를 통해 수행시간을 단축하고, 단계를 실행중에 신뢰도(confidence)확보하면 중단하는 방식으로 속도를 개선하였습니다. 오답은 문제를 이해할때 텍스트뿐 아니라 이미지를 같이 활용하거나, 더 지능적인 LLM으로 더 복잡한 문장 구조를 이해하는 방식으로 개선이 가능할 것으로 보여집니다. 
 
 ## 리소스 정리하기 
 
