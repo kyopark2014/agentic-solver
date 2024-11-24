@@ -1,10 +1,19 @@
-# Agentic Workflow를 이용하여 복잡한 문제 해결하기
+# LangGraph를 이용하여 구현된 Agentic Workflow를 이용하여 복잡한 문제 해결하기
 
-여기에서는 agentic workflow를 이용하여 복잡한 문제를 해결하는 방법에 대해 설명합니다. 여기에서 사용하는 agentic workflow은 plan and exeuction입니다.
+여기에서는 LangGraph를 이용하여 plan and execute 패턴의 agentic workflow를 구현하고, 이를 이용하여 복잡한 문제를 해결하는 방법에 대해 설명합니다. 
 
-## 복잡한 문제로 수능 국어를 선택한 이유
+## 수능 국어 문제 
+
+### 복잡한 문제로 수능 국어를 선택한 이유
 
 수학능력시험의 국어는 한국어에 대한 이해를 측정하기 위해 [지문과 선택지](https://github.com/NomaDamas/KICE_slayer_AI_Korean/blob/master/data/2023_11_KICE.json)가 주어집니다. 따라서, LLM의 언어 및 분석 능력을 판단하기에 매우 좋은 예제입니다. 또한, [수능 문제의 경우에 정답이 알려져있고 상세한 해설서](https://m.blog.naver.com/awesome-2030/222931282476)도 있습니다. 
+
+
+## 전체 Architecture
+
+여기에서 사용한 Architecture는 아래와 같습니다. API Gateway를 이용하여 클라이언트와 WebSocket으로 대화를 수행하고, AWS Lambda와 LangGraph를 이용하여 agentic workflow를 구현합니다. Workflow를 수행하기 위하여 외부 저장소나 인터넷 검색이 필요한 경우에는 Vector/Lexical 검색이 가능한 Knowledge Base와 Tavily 검색을 활용합니다. 다만, 수능 국어 문제의 경우에는 국어 자체에 대한 해석 능력을 확인하기 위하여 외부 데이터를 활용하지 않고 LLM의 지적능력만을 활용하였습니다. 여기에서는 plan and execute 패턴방식의 workflow를 사용하므로 multi region을 이용한 병렬처리를 통해 속도와 LLM의 throttling 이슈를 해결합니다. 
+
+<img width="652" alt="image" src="https://github.com/user-attachments/assets/d873497d-b7ec-4043-9a1f-ebe37c1c2bcf">
 
 ## Plan and Exeuction pattern
 
