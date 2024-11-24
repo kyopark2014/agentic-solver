@@ -90,6 +90,9 @@ def replan_node(state: State, config):
 이때, [flow-logs.md](https://github.com/kyopark2014/agentic-solver/blob/main/flow-logs.md)와 같이 replan의 결과로 Response 또는 Plan을 받게 됩니다.
 
 
+## Confidence의 활용
+ 
+ 단계별 진행시 LLM이 결과에 대해 확실하다면 다음 단계 진행없이 종료할 수 있습니다. 
 
 ## 직접 실습 해보기
 
