@@ -3050,7 +3050,7 @@ def solve_problems(conn, connectionId, requestId, paragraph, problems, idx, tota
         
         if output.isnumeric():
             selected_answer = int(output)
-            print('slected_answer: ', selected_answer)
+            print('selected_answer: ', selected_answer)
         else:
             class Selection(BaseModel):
                 select: int = Field(description="선택지의 번호")
@@ -3066,7 +3066,7 @@ def solve_problems(conn, connectionId, requestId, paragraph, problems, idx, tota
                     parsed_info = info['parsed']
                     #print('parsed_info: ', parsed_info)
                     selected_answer = parsed_info.select                    
-                    print('slected_answer: ', selected_answer)
+                    print('selected_answer: ', selected_answer)
                     break
 
         if answer == selected_answer:
@@ -3114,7 +3114,7 @@ def solve_problems_in_paragraph(connectionId, requestId, paragraph, problems, id
         
         if output.isnumeric():
             selected_answer = int(output)
-            print('slected_answer: ', selected_answer)
+            print('selected_answer: ', selected_answer)
         else:
             class Selection(BaseModel):
                 select: int = Field(description="선택지의 번호")
@@ -3130,7 +3130,7 @@ def solve_problems_in_paragraph(connectionId, requestId, paragraph, problems, id
                     parsed_info = info['parsed']
                     #print('parsed_info: ', parsed_info)
                     selected_answer = parsed_info.select                    
-                    print('slected_answer: ', selected_answer)
+                    print('selected_answer: ', selected_answer)
                     break
 
         if answer == selected_answer:
