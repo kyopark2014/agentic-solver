@@ -3035,7 +3035,7 @@ def solve_problems(conn, connectionId, requestId, paragraph, problems, idx, tota
         answer = problem["answer"]
         score = problem["score"]
             
-        result = solve_CSAT_Korean(connectionId, requestId+str(idx)+str(n), paragraph, question, question_plus, choices, idx+n)
+        result = solve_CSAT_Korean(connectionId, requestId+str(idx)+str(n), paragraph, question, question_plus, choices, idx+n*2)
         print('result: ', result)
         
         output = result[result.find('<result>')+8:result.find('</result>')]
