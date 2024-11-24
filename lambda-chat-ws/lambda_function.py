@@ -84,6 +84,7 @@ minDocSimilarity = 350
 projectName = os.environ.get('projectName')
 maxOutputTokens = 4096
 data_source_id = ""
+multi_region_mode = "enable"  # CSAT
 
 multi_region_models = [   # claude sonnet 3.0
     {   
@@ -2972,7 +2973,7 @@ def solve_problems_using_parallel_processing(connectionId, requestId, json_data)
     for idx in range(total_idx):
         messages.append("")
         
-    for idx, question_group in enumerate(json_data[:2]):
+    for idx, question_group in enumerate(json_data):
         parent_conn, child_conn = Pipe()
         parent_connections.append(parent_conn)
         
@@ -3212,7 +3213,7 @@ def getResponse(connectionId, jsonBody):
         allowTime = getAllowTime()
         load_chat_history(userId, allowTime)
         
-    start = int(time.time())    
+    start = int(time.time())
 
     msg = ""
     reference = ""
@@ -3421,14 +3422,12 @@ def getResponse(connectionId, jsonBody):
                     for problem in problems:
                         total_score += int(problem["score"])
                 print('total_score: ', total_score)
-                        
-                multi_region_mode = "enable"
+                                        
                 if multi_region_mode=="disable":
                     total_idx = len(json_data)+1
                     earn_score = 0
                     
-                    for idx in range(2):
-                        question_group = json_data[idx]
+                    for idx, question_group in enumerate(json_data[:2]):
                         paragraph = question_group["paragraph"]
                         print('paragraph: ', paragraph)
                         
