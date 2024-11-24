@@ -162,6 +162,10 @@ def replan_node(state: State, config):
 분석 결과, (1)번 선택지가 가장 적절하지 않습니다. '초야우생'이라는 표현이 반드시 이상적 공간에 존재하는 화자를 나타낸다고 볼 수 없으며, 이는 <보기>의 내용과도 직접적인 연관성이 없기 때문입니다.
 ```
 
+[2023_11_KICE_4.json](./contents/2023_11_KICE_4.json)에 대한 결과는 아래와 같습니다.
+
+![image](https://github.com/user-attachments/assets/e872b72f-3945-46bc-87c4-92104bd9f009)
+
 
 ### 수능 한국사 문제
 
